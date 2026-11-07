@@ -1,0 +1,281 @@
+/* ==========================================================================
+   Classbar — shared styles
+   Palette: black, off-white/white, greys, green, yellow, red. Nothing else.
+   ========================================================================== */
+
+:root {
+  --white: #FFFFFF;
+  --black: #111111;
+  --paper: #F7F7F4;
+  --grid: #ECECE7;
+  --line: #E4E4E0;
+
+  --ink: #111111;
+  --ink-soft: #3F3F46;
+  --ink-muted: #71717A;
+
+  --yellow: #F9D74A;
+  --yellow-light: #FDF0B8;
+  --yellow-dark: #CA9A04;
+
+  --red: #EF5350;
+  --red-light: #FDE2E1;
+  --red-dark: #B91C1C;
+
+  --green: #4ADE80;
+  --green-light: #DCFCE7;
+  --green-dark: #16A34A;
+  --green-deep: #166534;
+
+  --gray-100: #F4F4F2;
+  --gray-200: #E4E4E0;
+  --gray-300: #D4D4D0;
+  --gray-400: #A1A1AA;
+  --gray-500: #71717A;
+  --gray-600: #52525B;
+  --gray-700: #3F3F46;
+  --gray-800: #27272A;
+
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, .05);
+  --shadow-lift: 0 10px 30px rgba(0, 0, 0, .08);
+
+  accent-color: #4ADE80;
+}
+
+/* ---------- Kill browser blues ---------- */
+a { color: inherit; text-decoration: none; }
+::selection { background: #F9D74A; color: #111111; }
+*:focus-visible { outline: 2px solid #4ADE80; outline-offset: 2px; }
+input:focus, select:focus, textarea:focus, button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, .35);
+  border-color: #16A34A;
+}
+select { appearance: none; }
+/* Tailwind's base layer sets a default ring colour outside our palette; force green */
+:root *, :root *::before, :root *::after { --tw-ring-color: rgba(74, 222, 128, .5); }
+
+/* Hide Vue templates until mounted */
+[v-cloak] { display: none; }
+
+/* ---------- Page: grid paper ---------- */
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Type ---------- */
+.headline {
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.section-title {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.body-copy {
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+/* Flat yellow block behind a key word */
+.highlight {
+  background: var(--yellow);
+  padding: 0 .18em;
+  border-radius: 2px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Inline pill: "learn to [think], [solve] and [build]" */
+.tag {
+  display: inline-block;
+  padding: 0 .5rem;
+  border-radius: .375rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.5;
+}
+.tag-red    { background: var(--red); }
+.tag-yellow { background: var(--yellow); }
+.tag-green  { background: var(--green); }
+
+/* Small pill above headlines */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .4rem .9rem;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  box-shadow: var(--shadow-soft);
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  padding: .85rem 1.6rem;
+  transition: background-color .15s ease, transform .15s ease, box-shadow .15s ease;
+  white-space: nowrap;
+}
+.btn:hover { transform: translateY(-1px); }
+
+.btn-primary {
+  background: var(--green);
+  color: var(--green-deep);
+  box-shadow: 0 6px 18px rgba(22, 163, 74, .18);
+}
+.btn-primary:hover { background: #3BCB6F; }
+
+.btn-secondary {
+  background: var(--white);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+}
+.btn-secondary:hover { background: var(--gray-100); }
+
+.btn-sm { padding: .55rem 1.1rem; font-size: .875rem; }
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-soft);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lift);
+}
+
+/* ---------- Logo: three rising bars ---------- */
+.logo-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 26px;
+}
+.logo-bars span {
+  width: 7px;
+  border-radius: 9999px;
+}
+.logo-bars span:nth-child(1) { height: 12px; background: var(--red); }
+.logo-bars span:nth-child(2) { height: 19px; background: var(--yellow); }
+.logo-bars span:nth-child(3) { height: 26px; background: var(--green); }
+
+.logo-sub {
+  font-size: .55rem;
+  font-weight: 700;
+  letter-spacing: .22em;
+  color: var(--ink-muted);
+}
+
+/* ---------- Illustration pieces ---------- */
+
+/* Dotted connector with a small arrowhead at the end */
+.dotted-arrow {
+  position: relative;
+  height: 0;
+  border-top: 2px dotted var(--gray-400);
+}
+.dotted-arrow::after {
+  content: '';
+  position: absolute;
+  right: -2px;
+  top: -6px;
+  border-left: 8px solid var(--gray-400);
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+
+/* Dashed red circle holding the "?" (the problem) */
+.problem-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--red);
+  border-radius: 9999px;
+  background: var(--red-light);
+  color: var(--red-dark);
+  font-weight: 900;
+}
+
+/* Isometric-looking tile: a square turned into a rhombus with rotate + skew.
+   Two stacked layers (base + top) fake a little slab thickness. */
+.iso-wrap { position: relative; aspect-ratio: 1 / 1; }
+.iso {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  transform: rotate(30deg) skewX(-30deg) scaleY(.866);
+}
+.iso-base { top: 9px; bottom: -9px; }
+.iso-top  { box-shadow: 0 14px 24px rgba(0, 0, 0, .06); }
+
+.iso-yellow .iso-base { background: var(--yellow-dark); }
+.iso-yellow .iso-top {
+  background:
+    repeating-linear-gradient(135deg, transparent 0 9px, rgba(0, 0, 0, .07) 9px 11px),
+    var(--yellow);
+}
+.iso-green .iso-base { background: var(--green-dark); }
+.iso-green .iso-top {
+  background:
+    repeating-linear-gradient(135deg, transparent 0 9px, rgba(0, 0, 0, .07) 9px 11px),
+    var(--green);
+}
+
+/* Unrotated icon sticker sitting on a tile */
+.iso-badge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 9999px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+  color: var(--ink);
+}
+
+/* Gentle float for the hero pieces */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+.float      { animation: float 5s ease-in-out infinite; }
+.float-slow { animation: float 7s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .float, .float-slow { animation: none; }
+  .btn:hover, .card-hover:hover { transform: none; }
+}

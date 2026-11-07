@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classbar — After-school lessons, sorted</title>
+  <meta name="description" content="Book after-school lessons in maths, music, coding, sport and more.">
+
+  <!-- Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- Tailwind Play CDN + palette override (replaces the default colours) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        colors: {
+          transparent: 'transparent', current: 'currentColor',
+          white: '#FFFFFF', black: '#111111',
+          paper: '#F7F7F4', grid: '#ECECE7', line: '#E4E4E0',
+          ink:    { DEFAULT: '#111111', soft: '#3F3F46', muted: '#71717A' },
+          yellow: { DEFAULT: '#F9D74A', light: '#FDF0B8', dark: '#CA9A04' },
+          red:    { DEFAULT: '#EF5350', light: '#FDE2E1', dark: '#B91C1C' },
+          green:  { DEFAULT: '#4ADE80', light: '#DCFCE7', dark: '#16A34A', deep: '#166534' },
+          gray:   { 100: '#F4F4F2', 200: '#E4E4E0', 300: '#D4D4D0', 400: '#A1A1AA',
+                    500: '#71717A', 600: '#52525B', 700: '#3F3F46', 800: '#27272A' }
+        },
+        fontFamily: { sans: ['Inter', 'sans-serif'] }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="font-sans text-ink">
+
+<!-- Vue mounts here; everything inside #app can use data from js/home.js -->
+<div id="app" v-cloak>
+
+  <!-- ===================== NAVBAR ===================== -->
+  <header class="sticky top-0 z-50 bg-paper/90 backdrop-blur border-b border-line">
+    <nav class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <a href="index.html" class="flex items-center gap-2.5" aria-label="Classbar home">
+        <span class="logo-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="flex flex-col leading-none">
+          <span class="text-xl font-extrabold tracking-tight">Classbar</span>
+          <span class="logo-sub mt-0.5">AFTER SCHOOL</span>
+        </span>
+      </a>
+
+      <div class="flex items-center gap-4 sm:gap-7 text-sm font-medium text-ink-soft">
+        <a href="index.html" class="hidden sm:inline text-ink font-semibold" aria-current="page">Home</a>
+        <a href="lessons.html" class="hover:text-ink">Lessons</a>
+        <a href="about.html" class="hover:text-ink">About</a>
+        <a href="lessons.html" class="btn btn-primary btn-sm hidden sm:inline-flex">
+          Browse lessons <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ===================== HERO ===================== -->
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-14 pb-20 md:pt-24 md:pb-28 grid md:grid-cols-2 gap-14 items-center">
+      <div>
+        <span class="eyebrow">
+          <i class="fa-regular fa-bell text-yellow-dark"></i> After-school, sorted.
+        </span>
+
+        <h1 class="headline text-5xl sm:text-6xl lg:text-7xl mt-6">
+          Find the <span class="highlight">perfect class</span> after the school bell.
+        </h1>
+
+        <p class="body-copy text-lg mt-6 max-w-xl">
+          Classbar helps parents and students book after-school lessons in maths, music,
+          coding, sport and more — so kids can learn to
+          <span class="tag tag-red">think</span>,
+          <span class="tag tag-yellow">solve</span> and
+          <span class="tag tag-green">build</span>.
+        </p>
+
+        <div class="mt-9 flex flex-wrap gap-3">
+          <a href="lessons.html" class="btn btn-primary">
+            Browse lessons <i class="fa-solid fa-arrow-right"></i>
+          </a>
+          <a href="about.html" class="btn btn-secondary">
+            <i class="fa-regular fa-circle-play"></i> How it works
+          </a>
+        </div>
+
+        <p class="mt-8 text-sm text-ink-muted flex items-center gap-2">
+          <i class="fa-solid fa-shield-heart text-green-dark"></i>
+          No account needed — just a name and a phone number.
+        </p>
+      </div>
+
+      <!-- Illustration: problem (?) → lesson → booked, pure HTML/CSS -->
+      <div class="relative w-full max-w-md mx-auto aspect-square" aria-hidden="true">
+
+        <!-- Problem: dashed red circle with "?" -->
+        <div class="absolute" style="left:6%; top:6%; width:24%;">
+          <div class="problem-circle aspect-square text-4xl sm:text-5xl float">?</div>
+          <div class="mt-3 text-center"><span class="tag tag-red text-xs">problem</span></div>
+        </div>
+
+        <!-- Dotted connector 1 -->
+        <div class="dotted-arrow absolute" style="left:29%; top:29%; width:15%; transform:rotate(45deg); transform-origin:left center;"></div>
+
+        <!-- Lesson: yellow isometric tile -->
+        <div class="absolute" style="left:38%; top:38%; width:24%;">
+          <div class="iso-wrap iso-yellow float-slow">
+            <div class="iso iso-base"></div>
+            <div class="iso iso-top"></div>
+            <div class="iso-badge"><i class="fa-solid fa-book-open text-sm"></i></div>
+          </div>
+          <div class="mt-5 text-center"><span class="tag tag-yellow text-xs">lesson</span></div>
+        </div>
+
+        <!-- Dotted connector 2 -->
+        <div class="dotted-arrow absolute" style="left:61%; top:61%; width:13%; transform:rotate(45deg); transform-origin:left center;"></div>
+
+        <!-- Booked: green isometric tile -->
+        <div class="absolute" style="left:70%; top:70%; width:24%;">
+          <div class="iso-wrap iso-green float">
+            <div class="iso iso-base"></div>
+            <div class="iso iso-top"></div>
+            <div class="iso-badge"><i class="fa-solid fa-check text-sm text-green-deep"></i></div>
+          </div>
+          <div class="mt-5 text-center"><span class="tag tag-green text-xs">booked</span></div>
+        </div>
+
+        <!-- Floating mini lesson card -->
+        <div class="card absolute p-3 sm:p-4 w-44 sm:w-52" style="right:0; top:4%;">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-yellow-light text-yellow-dark flex items-center justify-center">
+              <i class="fa-solid fa-code text-sm"></i>
+            </span>
+            <div class="leading-tight">
+              <p class="text-sm font-bold">Coding Club</p>
+              <p class="text-xs text-ink-muted">Hendon · Tue 4pm</p>
+            </div>
+          </div>
+          <div class="mt-3 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+            <div class="h-full w-3/5 bg-green rounded-full"></div>
+          </div>
+          <p class="mt-1.5 text-xs text-ink-muted">3 of 5 spaces left</p>
+        </div>
+
+        <!-- Small floating note -->
+        <div class="card absolute px-3 py-2 text-xs font-semibold flex items-center gap-2" style="left:0; bottom:10%;">
+          <span class="w-2 h-2 rounded-full bg-green"></span> Spaces update live
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== HOW IT WORKS ===================== -->
+    <section id="how" class="max-w-6xl mx-auto px-4 sm:px-6 py-20">
+      <div class="max-w-2xl">
+        <span class="eyebrow"><i class="fa-solid fa-route text-red"></i> How it works</span>
+        <h2 class="section-title text-4xl sm:text-5xl mt-5">
+          Three steps from <span class="highlight">“what now?”</span> to booked.
+        </h2>
+      </div>
+
+      <div class="mt-12 grid md:grid-cols-3 gap-6 md:gap-12">
+        <!-- v-for repeats this card for each item in `steps`; `index` gives its position -->
+        <div v-for="(step, index) in steps" :key="step.title" class="relative">
+          <div class="card card-hover p-7 h-full">
+            <div class="flex items-center justify-between">
+              <span class="w-11 h-11 rounded-xl bg-paper border border-line flex items-center justify-center">
+                <i class="fa-solid" :class="step.icon"></i>
+              </span>
+              <!-- :class binds a class computed by the tagClass() method -->
+              <span class="tag text-xs" :class="tagClass(step.colour)">{{ step.tag }}</span>
+            </div>
+            <p class="mt-6 text-sm font-semibold text-ink-muted">Step {{ index + 1 }}</p>
+            <h3 class="mt-1 text-xl font-extrabold tracking-tight">{{ step.title }}</h3>
+            <p class="body-copy mt-2 text-[15px]">{{ step.text }}</p>
+          </div>
+
+          <!-- Dotted connector between cards (desktop only, not after the last step) -->
+          <div v-if="index < steps.length - 1"
+               class="dotted-arrow hidden md:block absolute top-1/2 -right-10 w-8"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== POPULAR SUBJECTS ===================== -->
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 py-20">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+        <div class="max-w-2xl">
+          <span class="eyebrow"><i class="fa-solid fa-star text-yellow-dark"></i> Popular subjects</span>
+          <h2 class="section-title text-4xl sm:text-5xl mt-5">Something for every <span class="highlight">kind of kid</span>.</h2>
+        </div>
+        <!-- {{ subjectCount }} is a computed property -->
+        <p class="text-ink-muted text-sm">Showing {{ subjectCount }} favourites</p>
+      </div>
+
+      <div class="mt-12 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        <a v-for="subject in subjects" :key="subject.name"
+           href="lessons.html" class="card card-hover p-5 sm:p-6 flex flex-col">
+          <span class="w-12 h-12 rounded-xl flex items-center justify-center text-lg"
+                :class="iconBg(subject.colour)">
+            <i class="fa-solid" :class="subject.icon"></i>
+          </span>
+          <h3 class="mt-5 text-lg font-extrabold tracking-tight">{{ subject.name }}</h3>
+          <p class="mt-1 text-sm text-ink-muted leading-relaxed">{{ subject.blurb }}</p>
+          <span class="mt-4 text-sm font-semibold text-ink-soft inline-flex items-center gap-1.5">
+            See classes <i class="fa-solid fa-arrow-right text-xs"></i>
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ===================== STATS STRIP ===================== -->
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+      <div class="card grid sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-line">
+        <div v-for="stat in stats" :key="stat.label" class="p-8 text-center">
+          <p class="headline text-5xl">{{ stat.value }}</p>
+          <p class="mt-2 text-ink-muted font-medium">{{ stat.label }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== FINAL CTA ===================== -->
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 py-20">
+      <div class="relative overflow-hidden rounded-3xl bg-black text-white px-6 py-14 sm:px-14 sm:py-20">
+        <div class="relative z-10 max-w-2xl">
+          <h2 class="section-title text-4xl sm:text-5xl text-white">
+            The bell’s about to ring. <span class="highlight text-ink">Grab a space.</span>
+          </h2>
+          <p class="mt-5 text-gray-300 text-lg leading-relaxed">
+            Classes fill up fast — only 5 spaces each. Find one that fits your week in under a minute.
+          </p>
+          <div class="mt-9 flex flex-wrap gap-3">
+            <a href="lessons.html" class="btn btn-primary">
+              Browse lessons <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            <a href="about.html" class="btn btn-secondary">Learn more</a>
+          </div>
+        </div>
+        <!-- Decorative bars echoing the logo -->
+        <div class="hidden md:flex absolute right-14 bottom-0 items-end gap-4" aria-hidden="true">
+          <span class="w-12 h-24 rounded-t-full bg-red"></span>
+          <span class="w-12 h-40 rounded-t-full bg-yellow"></span>
+          <span class="w-12 h-56 rounded-t-full bg-green"></span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="border-t border-line bg-white/60">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <a href="index.html" class="flex items-center gap-2.5">
+        <span class="logo-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="flex flex-col leading-none">
+          <span class="text-lg font-extrabold tracking-tight">Classbar</span>
+          <span class="logo-sub mt-0.5">AFTER SCHOOL</span>
+        </span>
+      </a>
+      <nav class="flex gap-6 text-sm font-medium text-ink-soft">
+        <a href="index.html" class="hover:text-ink">Home</a>
+        <a href="lessons.html" class="hover:text-ink">Lessons</a>
+        <a href="about.html" class="hover:text-ink">About</a>
+      </nav>
+      <p class="text-sm text-ink-muted">© {{ year }} Classbar · CST3144 coursework</p>
+    </div>
+  </footer>
+
+</div>
+
+<!-- Vue 3 (global build) then the page logic -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="js/home.js"></script>
+</body>
+</html>

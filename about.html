@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — Classbar</title>
+
+  <!-- Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- Tailwind Play CDN + palette override (replaces the default colours) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        colors: {
+          transparent: 'transparent', current: 'currentColor',
+          white: '#FFFFFF', black: '#111111',
+          paper: '#F7F7F4', grid: '#ECECE7', line: '#E4E4E0',
+          ink:    { DEFAULT: '#111111', soft: '#3F3F46', muted: '#71717A' },
+          yellow: { DEFAULT: '#F9D74A', light: '#FDF0B8', dark: '#CA9A04' },
+          red:    { DEFAULT: '#EF5350', light: '#FDE2E1', dark: '#B91C1C' },
+          green:  { DEFAULT: '#4ADE80', light: '#DCFCE7', dark: '#16A34A', deep: '#166534' },
+          gray:   { 100: '#F4F4F2', 200: '#E4E4E0', 300: '#D4D4D0', 400: '#A1A1AA',
+                    500: '#71717A', 600: '#52525B', 700: '#3F3F46', 800: '#27272A' }
+        },
+        fontFamily: { sans: ['Inter', 'sans-serif'] }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="font-sans text-ink">
+
+<div id="app">
+
+  <!-- ===================== NAVBAR ===================== -->
+  <header class="sticky top-0 z-50 bg-paper/90 backdrop-blur border-b border-line">
+    <nav class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <a href="index.html" class="flex items-center gap-2.5" aria-label="Classbar home">
+        <span class="logo-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="flex flex-col leading-none">
+          <span class="text-xl font-extrabold tracking-tight">Classbar</span>
+          <span class="logo-sub mt-0.5">AFTER SCHOOL</span>
+        </span>
+      </a>
+
+      <div class="flex items-center gap-4 sm:gap-7 text-sm font-medium text-ink-soft">
+        <a href="index.html" class="hidden sm:inline hover:text-ink">Home</a>
+        <a href="lessons.html" class="hover:text-ink">Lessons</a>
+        <a href="about.html" class="text-ink font-semibold" aria-current="page">About</a>
+        <a href="lessons.html" class="btn btn-primary btn-sm hidden sm:inline-flex">
+          Browse lessons <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24 min-h-[60vh]">
+    <span class="eyebrow"><i class="fa-solid fa-circle-info text-green-dark"></i> About Classbar</span>
+    <h1 class="headline text-5xl sm:text-6xl mt-6">How <span class="highlight">Classbar</span> works</h1>
+    <!-- Page content goes here -->
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="border-t border-line bg-white/60">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <a href="index.html" class="flex items-center gap-2.5">
+        <span class="logo-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="flex flex-col leading-none">
+          <span class="text-lg font-extrabold tracking-tight">Classbar</span>
+          <span class="logo-sub mt-0.5">AFTER SCHOOL</span>
+        </span>
+      </a>
+      <nav class="flex gap-6 text-sm font-medium text-ink-soft">
+        <a href="index.html" class="hover:text-ink">Home</a>
+        <a href="lessons.html" class="hover:text-ink">Lessons</a>
+        <a href="about.html" class="hover:text-ink">About</a>
+      </nav>
+      <p class="text-sm text-ink-muted">© 2026 Classbar · CST3144 coursework</p>
+    </div>
+  </footer>
+
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</body>
+</html>
