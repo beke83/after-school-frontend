@@ -1,0 +1,6 @@
+# Private presentation notes — never commit
+PRESENTATION-NOTES.md
+
+# OS / tooling
+.DS_Store
+node_modules/

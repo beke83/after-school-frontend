@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About — Classbar</title>
 
-  <!-- Inter -->
+  <!-- Sets the light/dark class on <html> before anything paints (no flash) -->
+  <script src="js/theme.js"></script>
+
+  <!-- Inter + JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
   <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -17,31 +20,36 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         colors: {
           transparent: 'transparent', current: 'currentColor',
           white: '#FFFFFF', black: '#111111',
-          paper: '#F7F7F4', grid: '#ECECE7', line: '#E4E4E0',
+          paper: '#F7F7F4', line: '#E4E4E0',
           ink:    { DEFAULT: '#111111', soft: '#3F3F46', muted: '#71717A' },
           yellow: { DEFAULT: '#F9D74A', light: '#FDF0B8', dark: '#CA9A04' },
           red:    { DEFAULT: '#EF5350', light: '#FDE2E1', dark: '#B91C1C' },
           green:  { DEFAULT: '#4ADE80', light: '#DCFCE7', dark: '#16A34A', deep: '#166534' },
           gray:   { 100: '#F4F4F2', 200: '#E4E4E0', 300: '#D4D4D0', 400: '#A1A1AA',
-                    500: '#71717A', 600: '#52525B', 700: '#3F3F46', 800: '#27272A' }
+                    500: '#71717A', 600: '#52525B', 700: '#3F3F46', 800: '#27272A' },
+          night:  { DEFAULT: '#161616', card: '#222222', raised: '#2A2A2A',
+                    line: '#2E2E2E', text: '#F5F5F5', muted: '#A1A1AA' }
         },
-        fontFamily: { sans: ['Inter', 'sans-serif'] }
+        fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] }
       }
     }
   </script>
 
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="font-sans text-ink">
+<body class="font-sans">
 
-<div id="app">
+<!-- Vue mounts here; logic in js/about.js, FAQ data in js/faq-data.js -->
+<div id="app" v-cloak>
 
   <!-- ===================== NAVBAR ===================== -->
-  <header class="sticky top-0 z-50 bg-paper/90 backdrop-blur border-b border-line">
+  <header class="sticky top-0 z-50 bg-paper/90 dark:bg-night/90 backdrop-blur border-b border-line dark:border-night-line">
+    <div class="tri-stripe"></div>
     <nav class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
       <a href="index.html" class="flex items-center gap-2.5" aria-label="Classbar home">
         <span class="logo-bars" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -51,10 +59,16 @@
         </span>
       </a>
 
-      <div class="flex items-center gap-4 sm:gap-7 text-sm font-medium text-ink-soft">
-        <a href="index.html" class="hidden sm:inline hover:text-ink">Home</a>
-        <a href="lessons.html" class="hover:text-ink">Lessons</a>
-        <a href="about.html" class="text-ink font-semibold" aria-current="page">About</a>
+      <div class="flex items-center gap-4 sm:gap-6 text-sm font-medium text-ink-soft dark:text-night-muted">
+        <a href="index.html" class="hidden sm:inline hover:text-ink dark:hover:text-night-text">Home</a>
+        <a href="lessons.html" class="hover:text-ink dark:hover:text-night-text">Lessons</a>
+        <a href="about.html" class="text-ink dark:text-night-text font-semibold" aria-current="page">About</a>
+        <!-- @click calls the toggleTheme() method; v-if / v-else swap the icon -->
+        <button type="button" class="icon-btn" @click="toggleTheme"
+                :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'">
+          <i v-if="isDark" class="fa-solid fa-sun"></i>
+          <i v-else class="fa-solid fa-moon"></i>
+        </button>
         <a href="lessons.html" class="btn btn-primary btn-sm hidden sm:inline-flex">
           Browse lessons <i class="fa-solid fa-arrow-right text-xs"></i>
         </a>
@@ -63,13 +77,34 @@
   </header>
 
   <main class="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24 min-h-[60vh]">
-    <span class="eyebrow"><i class="fa-solid fa-circle-info text-green-dark"></i> About Classbar</span>
+    <span class="eyebrow dark:hidden"><i class="fa-solid fa-circle-info text-green-dark"></i> About Classbar</span>
+    <p class="code-label hidden dark:block">// about Classbar</p>
     <h1 class="headline text-5xl sm:text-6xl mt-6">How <span class="highlight">Classbar</span> works</h1>
-    <!-- Page content goes here -->
+
+    <!-- ===================== FAQ ===================== -->
+    <section class="mt-16 max-w-3xl">
+      <p class="code-label hidden dark:block">// questions parents ask us</p>
+      <h2 class="section-title text-3xl sm:text-4xl mt-3">Questions</h2>
+
+      <div class="mt-8 space-y-3">
+        <!-- v-for renders one card per FAQ item -->
+        <div v-for="faq in faqs" :key="faq.question" class="card">
+          <!-- @click toggles this item's `open` flag -->
+          <button type="button" @click="toggleFaq(faq)" :aria-expanded="faq.open"
+                  class="w-full flex items-center justify-between gap-4 p-5 text-left font-bold rounded-xl">
+            {{ faq.question }}
+            <i class="fa-solid text-sm text-ink-muted dark:text-green" :class="faq.open ? 'fa-minus' : 'fa-plus'"></i>
+          </button>
+          <!-- v-show toggles display:none, so the answer stays in the page -->
+          <p v-show="faq.open" class="body-copy px-5 pb-5 -mt-1">{{ faq.answer }}</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- ===================== FOOTER ===================== -->
-  <footer class="border-t border-line bg-white/60">
+  <footer class="bg-white/60 dark:bg-night-card">
+    <div class="tri-stripe"></div>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
       <a href="index.html" class="flex items-center gap-2.5">
         <span class="logo-bars" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -78,17 +113,20 @@
           <span class="logo-sub mt-0.5">AFTER SCHOOL</span>
         </span>
       </a>
-      <nav class="flex gap-6 text-sm font-medium text-ink-soft">
-        <a href="index.html" class="hover:text-ink">Home</a>
-        <a href="lessons.html" class="hover:text-ink">Lessons</a>
-        <a href="about.html" class="hover:text-ink">About</a>
+      <nav class="flex gap-6 text-sm font-medium text-ink-soft dark:text-night-muted">
+        <a href="index.html" class="hover:text-ink dark:hover:text-night-text">Home</a>
+        <a href="lessons.html" class="hover:text-ink dark:hover:text-night-text">Lessons</a>
+        <a href="about.html" class="hover:text-ink dark:hover:text-night-text">About</a>
       </nav>
-      <p class="text-sm text-ink-muted">© 2026 Classbar · CST3144 coursework</p>
+      <p class="text-sm text-ink-muted dark:text-night-muted">© 2026 Classbar · CST3144 coursework</p>
     </div>
   </footer>
 
 </div>
 
+<!-- Vue 3 (global build), dummy FAQ data, then the page logic -->
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="js/faq-data.js"></script>
+<script src="js/about.js"></script>
 </body>
 </html>

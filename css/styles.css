@@ -1,13 +1,13 @@
 /* ==========================================================================
    Classbar — shared styles
    Palette: black, off-white/white, greys, green, yellow, red. Nothing else.
+   Dark mode: the `dark` class on <html> (set by js/theme.js) switches styles.
    ========================================================================== */
 
 :root {
   --white: #FFFFFF;
   --black: #111111;
   --paper: #F7F7F4;
-  --grid: #ECECE7;
   --line: #E4E4E0;
 
   --ink: #111111;
@@ -36,6 +36,14 @@
   --gray-700: #3F3F46;
   --gray-800: #27272A;
 
+  /* Dark mode surfaces */
+  --night: #161616;
+  --night-card: #222222;
+  --night-raised: #2A2A2A;
+  --night-line: #2E2E2E;
+  --night-text: #F5F5F5;
+  --night-muted: #A1A1AA;
+
   --shadow-soft: 0 4px 20px rgba(0, 0, 0, .05);
   --shadow-lift: 0 10px 30px rgba(0, 0, 0, .08);
 
@@ -58,18 +66,28 @@ select { appearance: none; }
 /* Hide Vue templates until mounted */
 [v-cloak] { display: none; }
 
-/* ---------- Page: grid paper ---------- */
-html { scroll-behavior: smooth; }
+/* ---------- Page ---------- */
+html { scroll-behavior: smooth; color-scheme: light; }
+html.dark { color-scheme: dark; }
 
 body {
   font-family: 'Inter', sans-serif;
   color: var(--ink);
   background-color: var(--paper);
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 28px 28px;
   -webkit-font-smoothing: antialiased;
+}
+.dark body {
+  color: var(--night-text);
+  background-color: var(--night);
+}
+
+/* Thin red | yellow | green stripe on top of navbar and footer (both modes) */
+.tri-stripe {
+  height: 4px;
+  background: linear-gradient(90deg,
+    var(--red) 0 33.333%,
+    var(--yellow) 33.333% 66.666%,
+    var(--green) 66.666% 100%);
 }
 
 /* ---------- Type ---------- */
@@ -86,12 +104,23 @@ body {
   line-height: 1.05;
 }
 
+/* Dark mode headlines: editorial, uppercase, extra heavy */
+.dark .headline,
+.dark .section-title {
+  color: var(--night-text);
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
 .body-copy {
   color: var(--ink-soft);
   line-height: 1.7;
 }
+.dark .body-copy { color: var(--night-muted); }
 
-/* Flat yellow block behind a key word */
+/* Flat yellow block behind a key word (light) / green word (dark) */
 .highlight {
   background: var(--yellow);
   padding: 0 .18em;
@@ -99,8 +128,28 @@ body {
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
+.dark .highlight {
+  background: transparent;
+  color: var(--green);
+  padding: 0;
+}
 
-/* Inline pill: "learn to [think], [solve] and [build]" */
+/* Dark CTA band is solid green, so its headline and key word go dark */
+.dark .cta .section-title,
+.dark .cta .highlight { color: var(--ink); }
+
+/* "// code comment" labels above sections (dark mode only, set in the HTML) */
+.code-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--green-dark);
+}
+.dark .code-label { color: #3BCB6F; }
+
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Inline pill: "learn to [think], [solve] and [build]" — dark text in both modes */
 .tag {
   display: inline-block;
   padding: 0 .5rem;
@@ -113,7 +162,7 @@ body {
 .tag-yellow { background: var(--yellow); }
 .tag-green  { background: var(--green); }
 
-/* Small pill above headlines */
+/* Small pill above headlines (light mode) */
 .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -148,6 +197,7 @@ body {
   box-shadow: 0 6px 18px rgba(22, 163, 74, .18);
 }
 .btn-primary:hover { background: #3BCB6F; }
+.dark .btn-primary { color: var(--ink); box-shadow: none; }
 
 .btn-secondary {
   background: var(--white);
@@ -156,8 +206,36 @@ body {
   box-shadow: var(--shadow-soft);
 }
 .btn-secondary:hover { background: var(--gray-100); }
+.dark .btn-secondary {
+  background: var(--night-card);
+  color: var(--night-text);
+  border-color: var(--night-line);
+  box-shadow: none;
+}
+.dark .btn-secondary:hover { background: var(--night-raised); }
 
 .btn-sm { padding: .55rem 1.1rem; font-size: .875rem; }
+
+/* Round icon button (theme toggle) */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink);
+  transition: background-color .15s ease;
+}
+.icon-btn:hover { background: var(--gray-100); }
+.dark .icon-btn {
+  border-color: var(--night-line);
+  background: var(--night-card);
+  color: var(--yellow);
+}
+.dark .icon-btn:hover { background: var(--night-raised); }
 
 /* ---------- Cards ---------- */
 .card {
@@ -165,12 +243,24 @@ body {
   border: 1px solid var(--line);
   border-radius: 1rem;
   box-shadow: var(--shadow-soft);
-  transition: transform .2s ease, box-shadow .2s ease;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 .card-hover:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lift);
 }
+
+/* Dark cards: flat, thin border, slightly tighter corners, no shadow */
+.dark .card {
+  background: var(--night-card);
+  border-color: var(--night-line);
+  border-radius: .75rem;
+  box-shadow: none;
+}
+.dark .card-hover:hover { box-shadow: none; border-color: var(--gray-600); }
+/* One featured card per section gets a green border in dark mode */
+.dark .card.card-featured,
+.dark .card.card-featured:hover { border-color: var(--green); }
 
 /* ---------- Logo: three rising bars ---------- */
 .logo-bars {
@@ -193,6 +283,7 @@ body {
   letter-spacing: .22em;
   color: var(--ink-muted);
 }
+.dark .logo-sub { color: var(--night-muted); }
 
 /* ---------- Illustration pieces ---------- */
 
@@ -211,6 +302,8 @@ body {
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
 }
+.dark .dotted-arrow { border-top-color: var(--gray-600); }
+.dark .dotted-arrow::after { border-left-color: var(--gray-600); }
 
 /* Dashed red circle holding the "?" (the problem) */
 .problem-circle {
@@ -222,6 +315,10 @@ body {
   background: var(--red-light);
   color: var(--red-dark);
   font-weight: 900;
+}
+.dark .problem-circle {
+  background: rgba(239, 83, 80, .12);
+  color: var(--red);
 }
 
 /* Isometric-looking tile: a square turned into a rhombus with rotate + skew.
@@ -265,6 +362,11 @@ body {
   border: 1px solid var(--line);
   box-shadow: var(--shadow-soft);
   color: var(--ink);
+}
+.dark .iso-badge {
+  background: var(--night-card);
+  border-color: var(--night-line);
+  color: var(--night-text);
 }
 
 /* Gentle float for the hero pieces */
