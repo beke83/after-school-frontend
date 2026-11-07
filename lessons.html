@@ -44,7 +44,7 @@
 </head>
 <body class="font-sans">
 
-<!-- Vue mounts here; logic in js/lessons.js -->
+<!-- Vue mounts here; logic in js/lessons.js, dummy lessons in js/lessons-data.js -->
 <div id="app" v-cloak>
 
   <!-- ===================== NAVBAR ===================== -->
@@ -80,7 +80,44 @@
     <span class="eyebrow dark:hidden"><i class="fa-solid fa-book-open text-yellow-dark"></i> All lessons</span>
     <p class="code-label hidden dark:block">// every class, every location</p>
     <h1 class="headline text-5xl sm:text-6xl mt-6">Browse <span class="highlight">lessons</span></h1>
-    <!-- Lesson list, sorting, search and cart go here -->
+    <p class="body-copy text-lg mt-5 max-w-xl">
+      Every class has 5 spaces. Pick a subject near you before they fill up.
+    </p>
+    <!-- lessonCount is a computed property -->
+    <p class="mt-6 text-sm text-ink-muted dark:text-night-muted">{{ lessonCount }} lessons available</p>
+
+    <!-- ===================== LESSON GRID ===================== -->
+    <div class="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+      <!-- v-for creates one card per lesson in data().lessons; :key="lesson.id" lets Vue
+           track each card when the list changes (e.g. after sorting later) -->
+      <article v-for="(lesson, index) in lessons" :key="lesson.id"
+               class="card card-hover p-6 flex flex-col"
+               :class="{ 'card-featured': lesson.id === featuredId }">
+        <div class="flex items-start justify-between gap-4">
+          <!-- Coloured icon tile: colour picked from the card's position by tileClass() -->
+          <span class="w-12 h-12 rounded-xl flex items-center justify-center text-lg shrink-0"
+                :class="tileClass(index)">
+            <i :class="lesson.icon"></i>
+          </span>
+          <p class="text-2xl font-extrabold tracking-tight">£{{ lesson.price }}</p>
+        </div>
+
+        <h2 class="mt-5 text-xl font-extrabold tracking-tight dark:uppercase">{{ lesson.topic }}</h2>
+        <p class="mt-1 text-sm text-ink-muted dark:text-night-muted flex items-center gap-1.5">
+          <i class="fa-solid fa-location-dot text-red"></i> {{ lesson.location }}
+        </p>
+
+        <!-- Spaces: label plus 5 dots, one filled dot per space left -->
+        <div class="mt-6 pt-4 border-t border-line dark:border-night-line flex items-center justify-between">
+          <span class="text-sm font-semibold text-ink-soft dark:text-night-text">{{ spacesLabel(lesson.space) }}</span>
+          <span class="flex gap-1.5" :aria-label="spacesLabel(lesson.space)">
+            <!-- v-for over a number: n goes 1, 2, 3, 4, 5 -->
+            <span v-for="n in maxSpaces" :key="n" class="w-2.5 h-2.5 rounded-full"
+                  :class="n <= lesson.space ? 'bg-green' : 'bg-gray-200 dark:bg-night-raised'"></span>
+          </span>
+        </div>
+      </article>
+    </div>
   </main>
 
   <!-- ===================== FOOTER ===================== -->
@@ -107,6 +144,7 @@
 
 <!-- Vue 3 (global build) then the page logic -->
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="js/lessons-data.js"></script>
 <script src="js/lessons.js"></script>
 </body>
 </html>
