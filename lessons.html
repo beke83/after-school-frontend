@@ -83,20 +83,50 @@
     <p class="body-copy text-lg mt-5 max-w-xl">
       Every class has 5 spaces. Pick a subject near you before they fill up.
     </p>
-    <!-- lessonCount is a computed property -->
-    <p class="mt-6 text-sm text-ink-muted dark:text-night-muted">{{ lessonCount }} lessons available</p>
+    <!-- ===================== SORT BAR ===================== -->
+    <div class="card mt-10 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+      <label class="flex items-center gap-3">
+        <span class="text-sm font-semibold text-ink-soft dark:text-night-muted shrink-0">Sort by</span>
+        <span class="relative">
+          <!-- v-model: picking an option writes its value into data().sortBy -->
+          <select v-model="sortBy"
+                  class="rounded-full border border-line bg-white pl-4 pr-10 py-2.5 text-sm font-semibold cursor-pointer
+                         dark:bg-night-raised dark:border-night-line dark:text-night-text">
+            <option v-for="option in sortOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+          </select>
+          <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-xs pointer-events-none text-ink-muted dark:text-night-muted"></i>
+        </span>
+      </label>
+
+      <!-- Two pill buttons; the one matching sortOrder gets the green "active" style -->
+      <div class="inline-flex self-start sm:self-auto p-1 rounded-full bg-gray-100 dark:bg-night-raised" role="group" aria-label="Sort order">
+        <button v-for="order in orderOptions" :key="order.value" type="button"
+                @click="sortOrder = order.value" :aria-pressed="sortOrder === order.value"
+                class="px-4 py-1.5 rounded-full text-sm font-semibold inline-flex items-center gap-2 transition-colors"
+                :class="sortOrder === order.value
+                  ? 'bg-green text-green-deep dark:text-ink'
+                  : 'text-ink-soft hover:text-ink dark:text-night-muted dark:hover:text-night-text'">
+          <i class="fa-solid" :class="order.icon"></i> {{ order.label }}
+        </button>
+      </div>
+
+      <!-- sortSummary is computed, so it updates together with the list -->
+      <p class="sm:ml-auto text-sm text-ink-muted dark:text-night-muted">{{ sortSummary }}</p>
+    </div>
 
     <!-- ===================== LESSON GRID ===================== -->
     <div class="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-      <!-- v-for creates one card per lesson in data().lessons; :key="lesson.id" lets Vue
-           track each card when the list changes (e.g. after sorting later) -->
-      <article v-for="(lesson, index) in lessons" :key="lesson.id"
-               class="card card-hover p-6 flex flex-col"
-               :class="{ 'card-featured': lesson.id === featuredId }">
+      <!-- v-for creates one card per lesson in the computed sortedLessons (a sorted copy of
+           data().lessons). :key="lesson.id" lets Vue move the existing cards when the order
+           changes instead of rebuilding them. Each card links to its details page. -->
+      <a v-for="lesson in sortedLessons" :key="lesson.id"
+         :href="'lesson.html?id=' + lesson.id"
+         class="card card-hover p-6 flex flex-col"
+         :class="{ 'card-featured': lesson.id === featuredId }">
         <div class="flex items-start justify-between gap-4">
-          <!-- Coloured icon tile: colour picked from the card's position by tileClass() -->
+          <!-- Coloured icon tile: colour picked from the lesson id, so it stays put when sorting -->
           <span class="w-12 h-12 rounded-xl flex items-center justify-center text-lg shrink-0"
-                :class="tileClass(index)">
+                :class="tileClass(lesson.id)">
             <i :class="lesson.icon"></i>
           </span>
           <p class="text-2xl font-extrabold tracking-tight">£{{ lesson.price }}</p>
@@ -116,7 +146,10 @@
                   :class="n <= lesson.space ? 'bg-green' : 'bg-gray-200 dark:bg-night-raised'"></span>
           </span>
         </div>
-      </article>
+        <span class="mt-4 text-sm font-semibold text-ink-soft dark:text-green inline-flex items-center gap-1.5">
+          View details <i class="fa-solid fa-arrow-right text-xs"></i>
+        </span>
+      </a>
     </div>
   </main>
 
@@ -136,7 +169,7 @@
         <a href="lessons.html" class="hover:text-ink dark:hover:text-night-text">Lessons</a>
         <a href="about.html" class="hover:text-ink dark:hover:text-night-text">About</a>
       </nav>
-      <p class="text-sm text-ink-muted dark:text-night-muted">© 2026 Classbar · CST3144 coursework</p>
+      <p class="text-sm text-ink-muted dark:text-night-muted">© 2026 Classbar</p>
     </div>
   </footer>
 

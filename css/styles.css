@@ -8,6 +8,7 @@
   --white: #FFFFFF;
   --black: #111111;
   --paper: #F7F7F4;
+  --grid: #ECECE7;
   --line: #E4E4E0;
 
   --ink: #111111;
@@ -41,6 +42,7 @@
   --night-card: #222222;
   --night-raised: #2A2A2A;
   --night-line: #2E2E2E;
+  --night-grid: #1E1E1E;
   --night-text: #F5F5F5;
   --night-muted: #A1A1AA;
 
@@ -70,15 +72,23 @@ select { appearance: none; }
 html { scroll-behavior: smooth; color-scheme: light; }
 html.dark { color-scheme: dark; }
 
+/* Faint grid-paper pattern: two 1px line gradients repeated every 28px */
 body {
   font-family: 'Inter', sans-serif;
   color: var(--ink);
   background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 28px 28px;
   -webkit-font-smoothing: antialiased;
 }
 .dark body {
   color: var(--night-text);
   background-color: var(--night);
+  background-image:
+    linear-gradient(var(--night-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--night-grid) 1px, transparent 1px);
 }
 
 /* Thin red | yellow | green stripe on top of navbar and footer (both modes) */

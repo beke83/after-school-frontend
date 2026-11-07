@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson — Classbar</title>
+
+  <!-- Sets the light/dark class on <html> before anything paints (no flash) -->
+  <script src="js/theme.js"></script>
+
+  <!-- Inter + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- Tailwind Play CDN + palette override (replaces the default colours) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        colors: {
+          transparent: 'transparent', current: 'currentColor',
+          white: '#FFFFFF', black: '#111111',
+          paper: '#F7F7F4', line: '#E4E4E0',
+          ink:    { DEFAULT: '#111111', soft: '#3F3F46', muted: '#71717A' },
+          yellow: { DEFAULT: '#F9D74A', light: '#FDF0B8', dark: '#CA9A04' },
+          red:    { DEFAULT: '#EF5350', light: '#FDE2E1', dark: '#B91C1C' },
+          green:  { DEFAULT: '#4ADE80', light: '#DCFCE7', dark: '#16A34A', deep: '#166534' },
+          gray:   { 100: '#F4F4F2', 200: '#E4E4E0', 300: '#D4D4D0', 400: '#A1A1AA',
+                    500: '#71717A', 600: '#52525B', 700: '#3F3F46', 800: '#27272A' },
+          night:  { DEFAULT: '#161616', card: '#222222', raised: '#2A2A2A',
+                    line: '#2E2E2E', text: '#F5F5F5', muted: '#A1A1AA' }
+        },
+        fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="font-sans">
+
+<!-- Vue mounts here; logic in js/lesson.js, dummy lessons + details in js/lessons-data.js -->
+<div id="app" v-cloak>
+
+  <!-- ===================== NAVBAR ===================== -->
+  <header class="sticky top-0 z-50 bg-paper/90 dark:bg-night/90 backdrop-blur border-b border-line dark:border-night-line">
+    <div class="tri-stripe"></div>
+    <nav class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <a href="index.html" class="flex items-center gap-2.5" aria-label="Classbar home">
+        <span class="logo-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="flex flex-col leading-none">
+          <span class="text-xl font-extrabold tracking-tight">Classbar</span>
+          <span class="logo-sub mt-0.5">AFTER SCHOOL</span>
+        </span>
+      </a>
+
+      <div class="flex items-center gap-4 sm:gap-6 text-sm font-medium text-ink-soft dark:text-night-muted">
+        <a href="index.html" class="hidden sm:inline hover:text-ink dark:hover:text-night-text">Home</a>
+        <a href="lessons.html" class="text-ink dark:text-night-text font-semibold" aria-current="page">Lessons</a>
+        <a href="about.html" class="hover:text-ink dark:hover:text-night-text">About</a>
+        <!-- @click calls the toggleTheme() method; v-if / v-else swap the icon -->
+        <button type="button" class="icon-btn" @click="toggleTheme"
+                :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'">
+          <i v-if="isDark" class="fa-solid fa-sun"></i>
+          <i v-else class="fa-solid fa-moon"></i>
+        </button>
+        <a href="lessons.html" class="btn btn-primary btn-sm hidden sm:inline-flex">
+          Browse lessons <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-10 md:py-16 min-h-[60vh]">
+    <a href="lessons.html" class="inline-flex items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink dark:text-night-muted dark:hover:text-night-text">
+      <i class="fa-solid fa-arrow-left text-xs"></i> All lessons
+    </a>
+
+    <!-- v-if: only build the details when a lesson with that id was found -->
+    <div v-if="lesson" class="mt-8 grid lg:grid-cols-3 gap-8 lg:gap-10 items-start">
+
+      <!-- ===================== LEFT: ABOUT THE LESSON ===================== -->
+      <div class="lg:col-span-2">
+        <div class="flex items-center gap-4">
+          <span class="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shrink-0"
+                :class="tileClass(lesson.id)">
+            <i :class="lesson.icon"></i>
+          </span>
+          <div>
+            <p class="code-label hidden dark:block">// lesson #{{ lesson.id }}</p>
+            <p class="text-sm font-semibold text-ink-muted dark:hidden">Lesson #{{ lesson.id }}</p>
+            <p class="mt-1 text-sm text-ink-muted dark:text-night-muted flex items-center gap-1.5">
+              <i class="fa-solid fa-location-dot text-red"></i> {{ lesson.location }}
+            </p>
+          </div>
+        </div>
+
+        <h1 class="headline text-5xl sm:text-6xl mt-6">
+          <span class="highlight">{{ lesson.topic }}</span> after school.
+        </h1>
+        <p class="body-copy text-lg mt-5 max-w-2xl">{{ details.summary }}</p>
+
+        <div class="mt-6 flex flex-wrap gap-2">
+          <span class="tag tag-yellow text-sm">ages {{ details.ages }}</span>
+          <span class="tag tag-green text-sm">{{ details.weeks }} weeks</span>
+          <span class="tag tag-red text-sm">{{ details.day }}s</span>
+        </div>
+
+        <!-- What they'll learn: v-for over the syllabus array, with a numbered step -->
+        <section class="card mt-10 p-6 sm:p-8">
+          <p class="code-label hidden dark:block">// what's on the syllabus</p>
+          <h2 class="section-title text-2xl sm:text-3xl dark:mt-2">What they'll learn</h2>
+          <ol class="mt-6 space-y-3">
+            <li v-for="(item, index) in details.syllabus" :key="item"
+                class="flex items-start gap-4 p-3 rounded-xl bg-paper dark:bg-night-raised">
+              <span class="mono text-xs font-bold w-8 h-8 shrink-0 rounded-lg bg-white border border-line flex items-center justify-center
+                           dark:bg-night-card dark:border-night-line dark:text-green">
+                {{ String(index + 1).padStart(2, '0') }}
+              </span>
+              <span class="pt-1 font-medium">{{ item }}</span>
+            </li>
+          </ol>
+        </section>
+
+        <!-- What to bring -->
+        <section class="card mt-5 p-6 sm:p-8">
+          <h2 class="section-title text-2xl sm:text-3xl">What to bring</h2>
+          <ul class="mt-5 space-y-2">
+            <li v-for="item in details.bring" :key="item" class="flex items-center gap-3 body-copy">
+              <i class="fa-solid fa-check text-green-dark dark:text-green"></i> {{ item }}
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <!-- ===================== RIGHT: KEY INFO ===================== -->
+      <aside class="card card-featured p-6 sm:p-7 lg:sticky lg:top-24">
+        <div class="flex items-end justify-between gap-4">
+          <p class="headline text-5xl">£{{ lesson.price }}</p>
+          <!-- pricePerWeek is computed from price and weeks -->
+          <p class="text-sm text-ink-muted dark:text-night-muted pb-1">≈ £{{ pricePerWeek }} / week</p>
+        </div>
+
+        <div class="mt-5 flex items-center justify-between">
+          <span class="text-sm font-semibold text-ink-soft dark:text-night-text">{{ spacesLabel(lesson.space) }}</span>
+          <span class="flex gap-1.5" :aria-label="spacesLabel(lesson.space)">
+            <span v-for="n in maxSpaces" :key="n" class="w-2.5 h-2.5 rounded-full"
+                  :class="n <= lesson.space ? 'bg-green' : 'bg-gray-200 dark:bg-night-raised'"></span>
+          </span>
+        </div>
+
+        <dl class="mt-6 divide-y divide-line dark:divide-night-line border-y border-line dark:border-night-line text-sm">
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-ink-muted dark:text-night-muted"><i class="fa-regular fa-calendar w-5"></i> Day</dt>
+            <dd class="font-semibold">{{ details.day }}</dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-ink-muted dark:text-night-muted"><i class="fa-regular fa-clock w-5"></i> Time</dt>
+            <dd class="font-semibold">{{ details.time }}</dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-ink-muted dark:text-night-muted"><i class="fa-solid fa-hourglass-half w-5"></i> Length</dt>
+            <dd class="font-semibold">{{ details.weeks }} weeks</dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-ink-muted dark:text-night-muted"><i class="fa-solid fa-child w-5"></i> Ages</dt>
+            <dd class="font-semibold">{{ details.ages }}</dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-ink-muted dark:text-night-muted"><i class="fa-solid fa-chalkboard-user w-5"></i> Tutor</dt>
+            <dd class="font-semibold">{{ details.tutor }}</dd>
+          </div>
+          <div class="flex justify-between gap-4 py-3">
+            <dt class="text-ink-muted dark:text-night-muted"><i class="fa-solid fa-location-dot w-5"></i> Location</dt>
+            <dd class="font-semibold">{{ lesson.location }}</dd>
+          </div>
+        </dl>
+
+        <a href="lessons.html" class="btn btn-primary w-full mt-6">
+          Browse all lessons <i class="fa-solid fa-arrow-right"></i>
+        </a>
+        <p class="mt-3 text-xs text-center text-ink-muted dark:text-night-muted">Spaces are booked from the cart (coming soon).</p>
+      </aside>
+
+      <!-- ===================== RELATED ===================== -->
+      <section class="lg:col-span-3 mt-6">
+        <p class="code-label hidden dark:block">// you might also like</p>
+        <h2 class="section-title text-2xl sm:text-3xl dark:mt-2">More lessons</h2>
+        <div class="mt-6 grid sm:grid-cols-3 gap-4">
+          <!-- relatedLessons is computed: same location first, then the cheapest others -->
+          <a v-for="other in relatedLessons" :key="other.id" :href="'lesson.html?id=' + other.id"
+             class="card card-hover p-5 flex items-center gap-4">
+            <span class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" :class="tileClass(other.id)">
+              <i :class="other.icon"></i>
+            </span>
+            <span class="flex-1 min-w-0">
+              <span class="block font-extrabold tracking-tight dark:uppercase">{{ other.topic }}</span>
+              <span class="block text-sm text-ink-muted dark:text-night-muted">{{ other.location }}</span>
+            </span>
+            <span class="font-bold">£{{ other.price }}</span>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <!-- v-else: shown when the id in the URL doesn't match any lesson -->
+    <div v-else class="card mt-8 p-10 text-center max-w-xl">
+      <div class="problem-circle w-20 h-20 mx-auto text-4xl">?</div>
+      <h1 class="section-title text-3xl mt-6">Lesson not found</h1>
+      <p class="body-copy mt-3">That lesson doesn't exist or the link is broken.</p>
+      <a href="lessons.html" class="btn btn-primary mt-6">See all lessons</a>
+    </div>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="bg-white/60 dark:bg-night-card">
+    <div class="tri-stripe"></div>
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <a href="index.html" class="flex items-center gap-2.5">
+        <span class="logo-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="flex flex-col leading-none">
+          <span class="text-lg font-extrabold tracking-tight">Classbar</span>
+          <span class="logo-sub mt-0.5">AFTER SCHOOL</span>
+        </span>
+      </a>
+      <nav class="flex gap-6 text-sm font-medium text-ink-soft dark:text-night-muted">
+        <a href="index.html" class="hover:text-ink dark:hover:text-night-text">Home</a>
+        <a href="lessons.html" class="hover:text-ink dark:hover:text-night-text">Lessons</a>
+        <a href="about.html" class="hover:text-ink dark:hover:text-night-text">About</a>
+      </nav>
+      <p class="text-sm text-ink-muted dark:text-night-muted">© 2026 Classbar</p>
+    </div>
+  </footer>
+
+</div>
+
+<!-- Vue 3 (global build) then the page logic -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="js/lessons-data.js"></script>
+<script src="js/lesson.js"></script>
+</body>
+</html>
