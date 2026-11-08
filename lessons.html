@@ -112,17 +112,22 @@
 
       <!-- sortSummary is computed, so it updates together with the list -->
       <p class="sm:ml-auto text-sm text-ink-muted dark:text-night-muted">{{ sortSummary }}</p>
+
+      <!-- Cart count: cart.length goes up by one every time a space is added -->
+      <span class="inline-flex items-center gap-2 self-start sm:self-auto rounded-full px-3 py-1.5 text-sm font-bold bg-yellow-light text-ink dark:bg-night-raised dark:text-yellow">
+        <i class="fa-solid fa-cart-shopping"></i> {{ cart.length }} in cart
+      </span>
     </div>
 
     <!-- ===================== LESSON GRID ===================== -->
     <div class="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
       <!-- v-for creates one card per lesson in the computed sortedLessons (a sorted copy of
            data().lessons). :key="lesson.id" lets Vue move the existing cards when the order
-           changes instead of rebuilding them. Each card links to its details page. -->
-      <a v-for="lesson in sortedLessons" :key="lesson.id"
-         :href="'lesson.html?id=' + lesson.id"
-         class="card card-hover p-6 flex flex-col"
-         :class="{ 'card-featured': lesson.id === featuredId }">
+           changes instead of rebuilding them. The card is an <article>, not a link, because
+           it now holds a button (a button inside a link is invalid HTML). -->
+      <article v-for="lesson in sortedLessons" :key="lesson.id"
+               class="card card-hover p-6 flex flex-col"
+               :class="{ 'card-featured': lesson.id === featuredId }">
         <div class="flex items-start justify-between gap-4">
           <!-- Coloured icon tile: colour picked from the lesson id, so it stays put when sorting -->
           <span class="w-12 h-12 rounded-xl flex items-center justify-center text-lg shrink-0"
@@ -132,12 +137,19 @@
           <p class="text-2xl font-extrabold tracking-tight">£{{ lesson.price }}</p>
         </div>
 
-        <h2 class="mt-5 text-xl font-extrabold tracking-tight dark:uppercase">{{ lesson.topic }}</h2>
+        <div class="mt-5 flex items-center gap-2">
+          <h2 class="text-xl font-extrabold tracking-tight dark:uppercase">
+            <a :href="'lesson.html?id=' + lesson.id" class="hover:underline underline-offset-4">{{ lesson.topic }}</a>
+          </h2>
+          <!-- v-if: the red "Full" tag only exists when no spaces are left -->
+          <span v-if="lesson.space === 0" class="tag tag-red text-xs">Full</span>
+        </div>
         <p class="mt-1 text-sm text-ink-muted dark:text-night-muted flex items-center gap-1.5">
           <i class="fa-solid fa-location-dot text-red"></i> {{ lesson.location }}
         </p>
 
-        <!-- Spaces: label plus 5 dots, one filled dot per space left -->
+        <!-- Spaces: label plus 5 dots, one filled dot per space left.
+             Both read lesson.space, so they update the moment addToCart() lowers it. -->
         <div class="mt-6 pt-4 border-t border-line dark:border-night-line flex items-center justify-between">
           <span class="text-sm font-semibold text-ink-soft dark:text-night-text">{{ spacesLabel(lesson.space) }}</span>
           <span class="flex gap-1.5" :aria-label="spacesLabel(lesson.space)">
@@ -146,10 +158,22 @@
                   :class="n <= lesson.space ? 'bg-green' : 'bg-gray-200 dark:bg-night-raised'"></span>
           </span>
         </div>
-        <span class="mt-4 text-sm font-semibold text-ink-soft dark:text-green inline-flex items-center gap-1.5">
-          View details <i class="fa-solid fa-arrow-right text-xs"></i>
-        </span>
-      </a>
+        <div class="mt-5 flex gap-2">
+          <!-- v-on (@click) calls addToCart with this card's lesson.
+               :disabled binds the HTML disabled attribute: true when no spaces are left,
+               so the button stays visible but can't be clicked. -->
+          <button type="button" class="btn btn-primary btn-sm flex-1"
+                  @click="addToCart(lesson)" :disabled="!canAddToCart(lesson)">
+            <!-- Label: "Added ✓" for ~1s after a click, "Fully booked" at 0, otherwise "Add to cart" -->
+            <template v-if="lastAddedId === lesson.id">Added ✓</template>
+            <template v-else-if="lesson.space === 0"><i class="fa-solid fa-ban"></i> Fully booked</template>
+            <template v-else><i class="fa-solid fa-cart-plus"></i> Add to cart</template>
+          </button>
+          <a :href="'lesson.html?id=' + lesson.id" class="btn btn-secondary btn-sm" :aria-label="'Details for ' + lesson.topic">
+            Details
+          </a>
+        </div>
+      </article>
     </div>
   </main>
 
@@ -178,6 +202,7 @@
 <!-- Vue 3 (global build) then the page logic -->
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 <script src="js/lessons-data.js"></script>
+<script src="js/cart.js"></script>
 <script src="js/lessons.js"></script>
 </body>
 </html>

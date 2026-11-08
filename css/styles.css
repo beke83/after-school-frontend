@@ -226,6 +226,23 @@ body {
 
 .btn-sm { padding: .55rem 1.1rem; font-size: .875rem; }
 
+/* Disabled buttons (e.g. "Fully booked"): flat grey, no hover change, not-allowed cursor */
+.btn:disabled,
+.btn:disabled:hover {
+  background: var(--gray-200);
+  color: var(--gray-600);
+  border-color: var(--gray-200);
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+.dark .btn:disabled,
+.dark .btn:disabled:hover {
+  background: var(--night-raised);
+  color: var(--night-muted);
+  border-color: var(--night-line);
+}
+
 /* Round icon button (theme toggle) */
 .icon-btn {
   display: inline-flex;

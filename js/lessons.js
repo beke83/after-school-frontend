@@ -4,18 +4,36 @@ const { createApp } = Vue;
 // Every class starts with this many spaces (used for the 5-dot indicator)
 const MAX_SPACES = 5;
 
+// How long the "Added ✓" label stays on a button, in milliseconds
+const ADDED_FEEDBACK_MS = 1000;
+
+// Timer for the "Added ✓" label. Kept outside data() because the page never displays it,
+// so it doesn't need to be reactive.
+let addedTimer = null;
+
 createApp({
   // data() returns the reactive state used in lessons.html
   data() {
+    // Saved cart from js/cart.js (shared with the details page through localStorage)
+    const savedCart = Cart.load();
+
     return {
       // Current theme; starts from whatever js/theme.js already applied to <html>
       isDark: Theme.isDark(),
 
       // Copy the dummy array from js/lessons-data.js into reactive data.
-      // Each lesson is copied too, so changing `space` later won't touch the original.
-      lessons: dummyLessons.map(lesson => ({ ...lesson })),
+      // Each lesson is copied too, so changing `space` later won't touch the original,
+      // and spaces already in the saved cart are taken off.
+      lessons: Cart.applyToLessons(dummyLessons, savedCart),
 
       maxSpaces: MAX_SPACES,
+
+      // The cart holds lesson ids, one entry per space booked.
+      // Booking Maths (id 1) twice and Art (id 4) once gives [1, 1, 4].
+      cart: savedCart,
+
+      // Id of the lesson whose button should show "Added ✓" right now (null = none)
+      lastAddedId: null,
 
       // Sorting state. sortBy holds a lesson field name; both are bound in lessons.html
       sortBy: 'topic',     // 'topic' | 'location' | 'price' | 'space'
@@ -92,9 +110,37 @@ createApp({
       ][(id - 1) % 3];
     },
 
-    // "1 space left" / "5 spaces left"
+    // "No spaces left" / "1 space left" / "5 spaces left"
     spacesLabel(space) {
+      if (space === 0) return 'No spaces left';
       return space + (space === 1 ? ' space' : ' spaces') + ' left';
+    },
+
+    // True while the lesson still has a space; used by :disabled on the button
+    canAddToCart(lesson) {
+      return lesson.space > 0;
+    },
+
+    // Book one space: add the id to the cart and take one space off the lesson.
+    // `lesson` is the same reactive object that lives in this.lessons (sortedLessons
+    // copies the array, not the objects), so changing lesson.space here changes the
+    // real data. Vue's reactivity tracks every place the template reads lesson.space —
+    // the "x spaces left" text, the 5 dots, the "Full" tag, the button label and
+    // :disabled — and re-renders just those parts straight away. No manual DOM updates.
+    addToCart(lesson) {
+      // Guard: the button is disabled at 0, but never trust the UI alone
+      if (!this.canAddToCart(lesson)) return;
+
+      this.cart.push(lesson.id);
+      lesson.space--;
+      Cart.save(this.cart);   // so the details page and a refresh see the same cart
+
+      // Show "Added ✓" on this button, then clear it after ~1 second.
+      // clearTimeout first, so fast repeat clicks restart the timer instead of
+      // an older timer clearing the label too early.
+      this.lastAddedId = lesson.id;
+      clearTimeout(addedTimer);
+      addedTimer = setTimeout(() => { this.lastAddedId = null; }, ADDED_FEEDBACK_MS);
     }
   },
 

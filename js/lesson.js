@@ -5,6 +5,12 @@ const { createApp } = Vue;
 
 const MAX_SPACES = 5;
 
+// How long the "Added ✓" label stays on the button, in milliseconds
+const ADDED_FEEDBACK_MS = 1000;
+
+// Timer for the "Added ✓" label (not shown on the page, so not reactive)
+let addedTimer = null;
+
 createApp({
   data() {
     return {
@@ -15,6 +21,12 @@ createApp({
       lesson: null,     // { id, topic, location, price, space, icon }
       details: null,    // { summary, ages, day, time, weeks, tutor, syllabus, bring }
 
+      // Same cart as the lessons page, loaded from localStorage by js/cart.js
+      cart: Cart.load(),
+
+      // true for ~1 second after clicking Add to cart
+      justAdded: false,
+
       maxSpaces: MAX_SPACES
     };
   },
@@ -23,6 +35,11 @@ createApp({
     // Price split over the course length, e.g. £100 over 10 weeks = £10
     pricePerWeek() {
       return Math.round(this.lesson.price / this.details.weeks);
+    },
+
+    // How many spaces of THIS lesson are already in the cart
+    inCartCount() {
+      return Cart.countOf(this.cart, this.lesson.id);
     },
 
     // Up to 3 other lessons: same location first, then the cheapest of the rest
@@ -53,7 +70,27 @@ createApp({
     },
 
     spacesLabel(space) {
+      if (space === 0) return 'No spaces left';
       return space + (space === 1 ? ' space' : ' spaces') + ' left';
+    },
+
+    canAddToCart() {
+      return this.lesson.space > 0;
+    },
+
+    // Same rules as the lessons page: guard, add the id, take a space off, save.
+    // this.lesson is reactive, so the dots, text and button update straight away.
+    addToCart() {
+      if (!this.canAddToCart()) return;
+
+      this.cart.push(this.lesson.id);
+      this.lesson.space--;
+      Cart.save(this.cart);
+
+      // Show "Added ✓" for ~1 second (restart the timer on fast repeat clicks)
+      this.justAdded = true;
+      clearTimeout(addedTimer);
+      addedTimer = setTimeout(() => { this.justAdded = false; }, ADDED_FEEDBACK_MS);
     }
   },
 
@@ -63,7 +100,8 @@ createApp({
     const found = dummyLessons.find(l => l.id === id);
 
     if (found) {
-      this.lesson = { ...found };
+      // Copy the lesson and take off any spaces already in the saved cart
+      this.lesson = Cart.applyToLessons([found], this.cart)[0];
       this.details = dummyLessonDetails[id];
       document.title = found.topic + ' in ' + found.location + ' — Classbar';
     }
