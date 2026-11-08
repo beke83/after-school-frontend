@@ -11,6 +11,20 @@ const ADDED_FEEDBACK_MS = 1000;
 // so it doesn't need to be reactive.
 let addedTimer = null;
 
+// Checkout validation patterns (regular expressions):
+//   ^      = start of the text      $ = end of the text
+//   [ ]    = "any ONE of these characters"
+//   +      = "one or more" of the thing before it
+// Because of ^ and $, the WHOLE value must match, not just part of it.
+//
+// NAME_PATTERN:  [A-Za-z\s] = an uppercase letter (A-Z), a lowercase letter (a-z),
+//                or whitespace (\s = space, tab…)
+//                → letters and spaces only, at least one character. "Sam Taylor" ✓  "Sam2" ✗
+// PHONE_PATTERN: [0-9] = any digit from 0 to 9
+//                → digits only, at least one. "07123456789" ✓  "07123 456" ✗  "+44…" ✗
+const NAME_PATTERN = /^[A-Za-z\s]+$/;
+const PHONE_PATTERN = /^[0-9]+$/;
+
 createApp({
   // data() returns the reactive state used in lessons.html
   data() {
@@ -39,6 +53,13 @@ createApp({
       // Which view is showing: false = lesson list, true = cart (switched with v-if / v-else).
       // lessons.html?view=cart (the link on the details page) opens straight on the cart.
       showCart: new URLSearchParams(window.location.search).get('view') === 'cart' && savedCart.length > 0,
+
+      // Checkout form fields, bound with v-model in lessons.html
+      customerName: '',
+      customerPhone: '',
+
+      // Summary shown in the confirmation modal after checkout (null = modal closed)
+      confirmedOrder: null,
 
       // Sorting state. sortBy holds a lesson field name; both are bound in lessons.html
       sortBy: 'topic',     // 'topic' | 'location' | 'price' | 'space'
@@ -120,6 +141,23 @@ createApp({
     // Sum of every line total (a number; formatPrice() adds the £ and pence)
     cartTotal() {
       return this.cartItems.reduce((sum, item) => sum + item.lineTotal, 0);
+    },
+
+    // Validation lives in computed properties: each one re-runs only when its field
+    // changes, and the template can use the result in several places (tick, hint,
+    // red border, button) without re-testing the regex each time.
+    // .test() returns true if the text matches the pattern. An empty field is false.
+    isNameValid() {
+      return NAME_PATTERN.test(this.customerName);
+    },
+
+    isPhoneValid() {
+      return PHONE_PATTERN.test(this.customerPhone);
+    },
+
+    // The Checkout button is enabled only when all three are true
+    canCheckout() {
+      return this.isNameValid && this.isPhoneValid && this.cart.length > 0;
     }
   },
 
@@ -204,6 +242,61 @@ createApp({
       if (this.cart.length === 0) {
         this.showCart = false;
       }
+    },
+
+    // Checkout: build the order, "send" it, show the confirmation, empty the cart.
+    submitOrder() {
+      // Guard: the button is disabled when this is false, but Enter could still submit
+      if (!this.canCheckout) return;
+
+      // The order in the exact shape the Express API will receive. Later this object is
+      // sent with fetch() as the body of POST /orders, and then each lesson's space is
+      // updated on the server with PUT /lessons/:id.
+      //   lessonIDs: each lesson once           e.g. [1, 4]
+      //   spaces:    how many of each, same order e.g. [2, 1]  → 2 × Maths, 1 × Art
+      const order = {
+        name: this.customerName,
+        phone: this.customerPhone,
+        lessonIDs: this.cartItems.map(item => item.lesson.id),
+        spaces: this.cartItems.map(item => item.quantity)
+      };
+
+      // TEMPORARY: no back-end yet, so just show it in the browser console
+      console.log('Order to POST /orders:', order);
+
+      // Save a summary for the confirmation modal. We need a copy because the cart
+      // is emptied straight after this.
+      this.confirmedOrder = {
+        name: order.name,
+        phone: order.phone,
+        items: this.cartItems.map(item => ({
+          id: item.lesson.id,
+          topic: item.lesson.topic,
+          location: item.lesson.location,
+          quantity: item.quantity,
+          lineTotal: item.lineTotal
+        })),
+        total: this.cartTotal
+      };
+
+      // The spaces are now booked: remember them (temporary stand-in for PUT /lessons/:id)
+      // and empty the cart. lesson.space is NOT given back — those spaces are taken.
+      // showCart stays true, so the confirmation shows on top of the cart view
+      // (this is why the "empty cart → back to list" rule lives in removeFromCart).
+      Cart.addBooked(this.cart);
+      this.cart = [];
+
+      // $nextTick waits until Vue has drawn the modal, then moves keyboard focus to its button
+      this.$nextTick(() => this.$refs.confirmButton.focus());
+    },
+
+    // "Back to lessons" in the confirmation: clear the form and return to the list
+    closeConfirmation() {
+      this.confirmedOrder = null;
+      this.customerName = '';
+      this.customerPhone = '';
+      this.showCart = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
 
     // Switch between the lesson list and the cart (the navbar button)

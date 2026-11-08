@@ -252,13 +252,102 @@
         <p class="headline text-4xl dark:!text-green">{{ formatPrice(cartTotal) }}</p>
       </div>
 
-      <!-- CHECKOUT FORM GOES HERE (Prompt 5) -->
-      <div id="checkout" class="mt-10"></div>
+      <!-- ===================== CHECKOUT ===================== -->
+      <!-- @submit.prevent: pressing Enter or clicking Checkout calls submitOrder()
+           and .prevent stops the browser from reloading the page (a normal form submit). -->
+      <form id="checkout" class="card mt-10 p-6 sm:p-8" @submit.prevent="submitOrder" novalidate>
+        <p class="code-label">// checkout</p>
+        <h2 class="section-title text-2xl sm:text-3xl mt-2">Your details</h2>
+        <p class="body-copy mt-2 text-sm">We'll call this number if anything changes. No account needed.</p>
+
+        <div class="mt-6 grid sm:grid-cols-2 gap-5">
+          <!-- Name. v-model.trim keeps data().customerName in sync and strips spaces at both ends -->
+          <div>
+            <label for="customer-name" class="text-sm font-semibold">Name</label>
+            <div class="relative mt-2">
+              <input id="customer-name" v-model.trim="customerName" type="text" autocomplete="name"
+                     placeholder="e.g. Sam Taylor"
+                     class="w-full rounded-xl border bg-white px-4 py-3 pr-10 placeholder:text-ink-muted
+                            dark:bg-night-raised dark:text-night-text dark:placeholder:text-night-muted"
+                     :class="customerName && !isNameValid ? 'border-red dark:border-red' : 'border-line dark:border-night-line'"
+                     :aria-invalid="customerName !== '' && !isNameValid" aria-describedby="name-hint">
+              <!-- Green tick only when valid -->
+              <i v-if="isNameValid" class="fa-solid fa-circle-check absolute right-3.5 top-1/2 -translate-y-1/2 text-green-dark dark:text-green"></i>
+            </div>
+            <!-- Red hint only when something was typed AND it's invalid -->
+            <p id="name-hint" class="mt-1.5 text-xs min-h-[1rem] text-red-dark dark:text-red">
+              <template v-if="customerName && !isNameValid">Letters and spaces only, please.</template>
+            </p>
+          </div>
+
+          <!-- Phone. v-model keeps data().customerPhone in sync -->
+          <div>
+            <label for="customer-phone" class="text-sm font-semibold">Phone</label>
+            <div class="relative mt-2">
+              <input id="customer-phone" v-model="customerPhone" type="tel" inputmode="numeric" autocomplete="tel"
+                     placeholder="e.g. 07123456789"
+                     class="w-full rounded-xl border bg-white px-4 py-3 pr-10 placeholder:text-ink-muted
+                            dark:bg-night-raised dark:text-night-text dark:placeholder:text-night-muted"
+                     :class="customerPhone && !isPhoneValid ? 'border-red dark:border-red' : 'border-line dark:border-night-line'"
+                     :aria-invalid="customerPhone !== '' && !isPhoneValid" aria-describedby="phone-hint">
+              <i v-if="isPhoneValid" class="fa-solid fa-circle-check absolute right-3.5 top-1/2 -translate-y-1/2 text-green-dark dark:text-green"></i>
+            </div>
+            <p id="phone-hint" class="mt-1.5 text-xs min-h-[1rem] text-red-dark dark:text-red">
+              <template v-if="customerPhone && !isPhoneValid">Numbers only, please — no spaces or +.</template>
+            </p>
+          </div>
+        </div>
+
+        <!-- Always visible; :disabled until canCheckout (valid name + phone + something in the cart) -->
+        <button type="submit" class="btn btn-primary w-full mt-4" :disabled="!canCheckout">
+          <i class="fa-solid fa-lock"></i> Checkout · {{ formatPrice(cartTotal) }}
+        </button>
+        <p v-if="!canCheckout" class="mt-3 text-xs text-center text-ink-muted dark:text-night-muted">
+          Enter a valid name and phone number to check out.
+        </p>
+      </form>
 
       <button type="button" class="btn btn-secondary mt-4" @click="toggleCart">
         <i class="fa-solid fa-arrow-left"></i> Keep browsing
       </button>
     </section>
+
+    <!-- ===================== ORDER CONFIRMATION (modal) =====================
+         v-if: only exists after submitOrder() has filled in confirmedOrder.
+         It shows a saved summary, because the cart itself is already empty by now. -->
+    <div v-if="confirmedOrder" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60"
+         role="dialog" aria-modal="true" aria-labelledby="confirm-title" @keydown.esc="closeConfirmation">
+      <div class="card card-featured w-full max-w-md p-6 sm:p-8 max-h-[90vh] overflow-y-auto">
+        <div class="w-14 h-14 rounded-full bg-green text-ink flex items-center justify-center text-2xl">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <p class="code-label mt-5">// order submitted</p>
+        <h2 id="confirm-title" class="section-title text-3xl mt-2">
+          Order submitted! <span class="highlight">Thanks, {{ confirmedOrder.name }}.</span>
+        </h2>
+        <p class="body-copy mt-3 text-sm">We'll call {{ confirmedOrder.phone }} if anything changes.</p>
+
+        <!-- Summary of what was booked -->
+        <ul class="mt-6 divide-y divide-line dark:divide-night-line border-y border-line dark:border-night-line">
+          <li v-for="item in confirmedOrder.items" :key="item.id" class="py-3 flex items-center justify-between gap-4 text-sm">
+            <span>
+              <span class="font-bold">{{ item.topic }}</span>
+              <span class="text-ink-muted dark:text-night-muted"> · {{ item.location }} × {{ item.quantity }}</span>
+            </span>
+            <span class="font-semibold">{{ formatPrice(item.lineTotal) }}</span>
+          </li>
+        </ul>
+        <div class="mt-4 flex items-center justify-between">
+          <span class="font-bold">Total</span>
+          <span class="text-2xl font-extrabold tracking-tight dark:text-green">{{ formatPrice(confirmedOrder.total) }}</span>
+        </div>
+
+        <!-- ref="confirmButton" lets submitOrder() move keyboard focus here when the modal opens -->
+        <button ref="confirmButton" type="button" class="btn btn-primary w-full mt-7" @click="closeConfirmation">
+          <i class="fa-solid fa-arrow-left"></i> Back to lessons
+        </button>
+      </div>
+    </div>
   </main>
 
   <!-- ===================== FOOTER ===================== -->
