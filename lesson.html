@@ -194,7 +194,8 @@
         <p class="mt-3 text-sm text-center text-ink-muted dark:text-night-muted">
           <template v-if="inCartCount > 0">
             <i class="fa-solid fa-cart-shopping"></i> {{ inCartCount }} in your cart ·
-            <a href="lessons.html" class="font-semibold underline underline-offset-4 hover:text-ink dark:hover:text-night-text">see all lessons</a>
+            <!-- ?view=cart tells the lessons page to open on the cart view -->
+            <a href="lessons.html?view=cart" class="font-semibold underline underline-offset-4 hover:text-ink dark:hover:text-night-text">view cart</a>
           </template>
           <template v-else>Each space you add is for one child.</template>
         </p>

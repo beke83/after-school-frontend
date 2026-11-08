@@ -153,7 +153,7 @@ body {
   font-family: 'JetBrains Mono', monospace;
   font-size: .8rem;
   font-weight: 500;
-  color: var(--green-dark);
+  color: var(--green-deep);   /* #166534: dark enough for small text on the off-white page */
 }
 .dark .code-label { color: #3BCB6F; }
 

@@ -14,8 +14,9 @@ let addedTimer = null;
 createApp({
   // data() returns the reactive state used in lessons.html
   data() {
-    // Saved cart from js/cart.js (shared with the details page through localStorage)
-    const savedCart = Cart.load();
+    // Saved cart from js/cart.js (shared with the details page through localStorage).
+    // Ids that don't match a lesson (e.g. old saved data) are dropped.
+    const savedCart = Cart.load().filter(id => dummyLessons.some(l => l.id === id));
 
     return {
       // Current theme; starts from whatever js/theme.js already applied to <html>
@@ -34,6 +35,10 @@ createApp({
 
       // Id of the lesson whose button should show "Added ✓" right now (null = none)
       lastAddedId: null,
+
+      // Which view is showing: false = lesson list, true = cart (switched with v-if / v-else).
+      // lessons.html?view=cart (the link on the details page) opens straight on the cart.
+      showCart: new URLSearchParams(window.location.search).get('view') === 'cart' && savedCart.length > 0,
 
       // Sorting state. sortBy holds a lesson field name; both are bound in lessons.html
       sortBy: 'topic',     // 'topic' | 'location' | 'price' | 'space'
@@ -90,6 +95,44 @@ createApp({
     // The cheapest lesson gets the "featured" card (green border in dark mode)
     featuredId() {
       return this.lessons.reduce((best, l) => (l.price < best.price ? l : best)).id;
+    },
+
+    // Groups the cart ids into one row per lesson for the cart view.
+    // [1, 1, 4] becomes:
+    //   [{ lesson: Maths, quantity: 2, lineTotal: 200 }, { lesson: Art, quantity: 1, lineTotal: 80 }]
+    // Rows stay in the order each lesson was first added.
+    cartItems() {
+      const counts = new Map();                       // id -> how many times it appears
+      for (const id of this.cart) {
+        counts.set(id, (counts.get(id) || 0) + 1);
+      }
+
+      const items = [];
+      for (const [id, quantity] of counts) {
+        const lesson = this.lessons.find(l => l.id === id);   // look the lesson up by id
+        if (lesson) {
+          items.push({ lesson, quantity, lineTotal: lesson.price * quantity });
+        }
+      }
+      return items;
+    },
+
+    // Sum of every line total (a number; formatPrice() adds the £ and pence)
+    cartTotal() {
+      return this.cartItems.reduce((sum, item) => sum + item.lineTotal, 0);
+    }
+  },
+
+  // watch runs a function whenever a piece of data changes.
+  // deep: true is needed because push() and splice() change the array's contents,
+  // not the array itself. Saving here means addToCart and removeFromCart don't each
+  // have to remember to save.
+  watch: {
+    cart: {
+      handler(ids) {
+        Cart.save(ids);
+      },
+      deep: true
     }
   },
 
@@ -132,8 +175,7 @@ createApp({
       if (!this.canAddToCart(lesson)) return;
 
       this.cart.push(lesson.id);
-      lesson.space--;
-      Cart.save(this.cart);   // so the details page and a refresh see the same cart
+      lesson.space--;          // the cart watcher saves to localStorage
 
       // Show "Added ✓" on this button, then clear it after ~1 second.
       // clearTimeout first, so fast repeat clicks restart the timer instead of
@@ -141,6 +183,39 @@ createApp({
       this.lastAddedId = lesson.id;
       clearTimeout(addedTimer);
       addedTimer = setTimeout(() => { this.lastAddedId = null; }, ADDED_FEEDBACK_MS);
+    },
+
+    // Remove ONE space of a lesson: [1, 1, 4] → removeFromCart(1) → [1, 4].
+    // indexOf finds the first matching id and splice(index, 1) removes just that entry.
+    removeFromCart(lessonId) {
+      const index = this.cart.indexOf(lessonId);
+      if (index === -1) return;            // not in the cart: nothing to do
+
+      this.cart.splice(index, 1);
+
+      // Give the space back to the class (reactive, so its card updates too)
+      const lesson = this.lessons.find(l => l.id === lessonId);
+      if (lesson) lesson.space++;
+
+      // Leave the cart view once it's empty. This check lives HERE rather than in a
+      // watcher on purpose: removing the last item is the only time we want to jump
+      // back. Checkout (next step) will also empty the cart, but there we want to
+      // stay on the cart view to show a confirmation — a watcher would fire then too.
+      if (this.cart.length === 0) {
+        this.showCart = false;
+      }
+    },
+
+    // Switch between the lesson list and the cart (the navbar button)
+    toggleCart() {
+      if (!this.showCart && this.cart.length === 0) return;   // nothing to show yet
+      this.showCart = !this.showCart;
+      window.scrollTo({ top: 0, behavior: 'smooth' });       // new view starts at the top
+    },
+
+    // 280 → "£280.00"
+    formatPrice(amount) {
+      return '£' + amount.toFixed(2);
     }
   },
 

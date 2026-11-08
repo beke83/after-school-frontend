@@ -69,14 +69,36 @@
           <i v-if="isDark" class="fa-solid fa-sun"></i>
           <i v-else class="fa-solid fa-moon"></i>
         </button>
-        <a href="lessons.html" class="btn btn-primary btn-sm hidden sm:inline-flex">
-          Browse lessons <i class="fa-solid fa-arrow-right text-xs"></i>
-        </a>
+        <!-- Cart button: toggles between the lesson list and the cart view.
+             :disabled keeps it greyed out until something is in the cart. -->
+        <button type="button" class="btn btn-primary btn-sm" @click="toggleCart"
+                :disabled="cart.length === 0"
+                :aria-label="showCart ? 'Back to lessons' : 'Cart, ' + cart.length + ' items'">
+          <!-- v-if / v-else swap the icon and label depending on which view is showing -->
+          <template v-if="showCart">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span class="hidden sm:inline">Back to lessons</span>
+          </template>
+          <template v-else>
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="hidden sm:inline">Cart</span>
+          </template>
+          <!-- Count badge: cart.length is reactive, so it updates on every add/remove -->
+          <span class="min-w-[1.25rem] h-5 px-1.5 rounded-full text-xs font-bold inline-flex items-center justify-center"
+                :class="cart.length ? 'bg-black text-green' : 'bg-gray-300 text-gray-600 dark:bg-night-line dark:text-night-muted'">
+            {{ cart.length }}
+          </span>
+        </button>
       </div>
     </nav>
   </header>
 
   <main class="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24 min-h-[60vh]">
+
+    <!-- ===================== VIEW 1: LESSON LIST =====================
+         v-if / v-else: only ONE of the two views exists at a time, chosen by data().showCart.
+         <template> groups the whole list view without adding an extra element. -->
+    <template v-if="!showCart">
     <span class="eyebrow dark:hidden"><i class="fa-solid fa-book-open text-yellow-dark"></i> All lessons</span>
     <p class="code-label hidden dark:block">// every class, every location</p>
     <h1 class="headline text-5xl sm:text-6xl mt-6">Browse <span class="highlight">lessons</span></h1>
@@ -175,6 +197,68 @@
         </div>
       </article>
     </div>
+    </template>
+
+    <!-- ===================== VIEW 2: CART ===================== -->
+    <section v-else>
+      <p class="code-label">// your cart</p>
+      <h1 class="headline text-5xl sm:text-6xl mt-4">Your <span class="highlight">cart.</span></h1>
+      <p class="body-copy text-lg mt-5 max-w-xl">
+        Each line is one lesson. Remove a space and it goes straight back to the class.
+      </p>
+
+      <!-- One row per lesson in the cart. cartItems is computed: it groups the ids in
+           cart (e.g. [1, 1, 4]) into { lesson, quantity, lineTotal } objects. -->
+      <ul class="mt-10 space-y-3">
+        <li v-for="item in cartItems" :key="item.lesson.id"
+            class="card p-4 sm:p-5 flex flex-wrap sm:flex-nowrap items-center gap-4">
+          <span class="w-12 h-12 rounded-xl flex items-center justify-center text-lg shrink-0"
+                :class="tileClass(item.lesson.id)">
+            <i :class="item.lesson.icon"></i>
+          </span>
+
+          <div class="flex-1 min-w-[8rem]">
+            <a :href="'lesson.html?id=' + item.lesson.id"
+               class="font-extrabold tracking-tight text-lg dark:uppercase hover:underline underline-offset-4">{{ item.lesson.topic }}</a>
+            <p class="text-sm text-ink-muted dark:text-night-muted flex items-center gap-1.5">
+              <i class="fa-solid fa-location-dot text-red"></i> {{ item.lesson.location }}
+            </p>
+          </div>
+
+          <!-- Unit price × quantity = line total -->
+          <div class="text-sm text-ink-muted dark:text-night-muted whitespace-nowrap">
+            {{ formatPrice(item.lesson.price) }} <span class="mono">×</span>
+            <span class="font-bold text-ink dark:text-night-text">{{ item.quantity }}</span>
+          </div>
+          <p class="w-24 text-right text-lg font-extrabold tracking-tight">{{ formatPrice(item.lineTotal) }}</p>
+
+          <!-- @click removes ONE space of this lesson (not the whole line) -->
+          <button type="button" class="btn btn-secondary btn-sm" @click="removeFromCart(item.lesson.id)"
+                  :aria-label="'Remove one ' + item.lesson.topic + ' space'">
+            <i class="fa-regular fa-trash-can text-red"></i> Remove
+          </button>
+        </li>
+      </ul>
+
+      <!-- Total: cartTotal is computed from the line totals -->
+      <div class="card card-featured mt-5 p-5 sm:p-6 flex items-center justify-between gap-4">
+        <div>
+          <p class="font-bold">Total</p>
+          <p class="text-sm text-ink-muted dark:text-night-muted">
+            {{ cart.length }} {{ cart.length === 1 ? 'space' : 'spaces' }} across {{ cartItems.length }}
+            {{ cartItems.length === 1 ? 'lesson' : 'lessons' }}
+          </p>
+        </div>
+        <p class="headline text-4xl dark:!text-green">{{ formatPrice(cartTotal) }}</p>
+      </div>
+
+      <!-- CHECKOUT FORM GOES HERE (Prompt 5) -->
+      <div id="checkout" class="mt-10"></div>
+
+      <button type="button" class="btn btn-secondary mt-4" @click="toggleCart">
+        <i class="fa-solid fa-arrow-left"></i> Keep browsing
+      </button>
+    </section>
   </main>
 
   <!-- ===================== FOOTER ===================== -->
