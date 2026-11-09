@@ -17,6 +17,12 @@ createApp({
       // Current theme; starts from whatever js/theme.js already applied to <html>
       isDark: Theme.isDark(),
 
+      // Mobile menu (phones only): open/closed, toggled by the menu button in the navbar
+      menuOpen: false,
+
+      // Shown in the footer: © {{ year }} Classbar
+      year: new Date().getFullYear(),
+
       // Filled in created() once we know which id is in the URL
       lesson: null,     // { id, topic, location, price, space, icon }
       details: null,    // { summary, ages, day, time, weeks, tutor, syllabus, bring }
@@ -64,7 +70,7 @@ createApp({
     tileClass(id) {
       return [
         'bg-red-light text-red-dark dark:bg-night-raised dark:text-red',
-        'bg-yellow-light text-yellow-dark dark:bg-night-raised dark:text-yellow',
+        'bg-yellow-light text-ink dark:bg-night-raised dark:text-yellow',
         'bg-green-light text-green-deep dark:bg-night-raised dark:text-green'
       ][(id - 1) % 3];
     },

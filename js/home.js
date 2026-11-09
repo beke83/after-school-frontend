@@ -9,6 +9,9 @@ createApp({
       // Current theme; starts from whatever js/theme.js already applied to <html>
       isDark: Theme.isDark(),
 
+      // Mobile menu (phones only): open/closed, toggled by the menu button in the navbar
+      menuOpen: false,
+
       // Text typed into the subject search box (bound with v-model)
       search: '',
 
@@ -78,7 +81,7 @@ createApp({
     // Icon square colours for light and dark mode
     iconBg(colour) {
       return {
-        yellow: 'bg-yellow-light text-yellow-dark dark:bg-night-raised dark:text-yellow',
+        yellow: 'bg-yellow-light text-ink dark:bg-night-raised dark:text-yellow',
         red:    'bg-red-light text-red-dark dark:bg-night-raised dark:text-red',
         green:  'bg-green-light text-green-deep dark:bg-night-raised dark:text-green'
       }[colour];

@@ -203,11 +203,11 @@ body {
 
 .btn-primary {
   background: var(--green);
-  color: var(--green-deep);
+  color: var(--ink);          /* #111 on green = 10.8:1 (green-deep was only 4.1:1) */
   box-shadow: 0 6px 18px rgba(22, 163, 74, .18);
 }
 .btn-primary:hover { background: #3BCB6F; }
-.dark .btn-primary { color: var(--ink); box-shadow: none; }
+.dark .btn-primary { box-shadow: none; }
 
 .btn-secondary {
   background: var(--white);

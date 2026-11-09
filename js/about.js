@@ -8,6 +8,12 @@ createApp({
       // Current theme; starts from whatever js/theme.js already applied to <html>
       isDark: Theme.isDark(),
 
+      // Mobile menu (phones only): open/closed, toggled by the menu button in the navbar
+      menuOpen: false,
+
+      // Shown in the footer: © {{ year }} Classbar
+      year: new Date().getFullYear(),
+
       // DUMMY DATA — will be replaced by fetch() to the Express API (GET /lessons) later.
       // "How booking works" steps, rendered with v-for. The last one is the featured card.
       steps: [

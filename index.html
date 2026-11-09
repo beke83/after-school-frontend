@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
   <title>Classbar — After-school lessons, sorted</title>
   <meta name="description" content="Book after-school lessons in maths, music, coding, sport and more.">
 
@@ -49,21 +50,23 @@
 <div id="app" v-cloak>
 
   <!-- ===================== NAVBAR ===================== -->
-  <header class="sticky top-0 z-50 bg-paper/90 dark:bg-night/90 backdrop-blur border-b border-line dark:border-night-line">
+  <header class="sticky top-0 z-50 bg-paper/90 dark:bg-night/90 backdrop-blur border-b border-line dark:border-night-line"
+          @keydown.esc="menuOpen = false">
     <div class="tri-stripe"></div>
-    <nav class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-      <a href="index.html" class="flex items-center gap-2.5" aria-label="Classbar home">
-        <span class="logo-bars" aria8-hidden="true"><span></span><span></span><span></span></span>
+    <nav class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3" aria-label="Main">
+      <a href="index.html" class="flex items-center gap-2.5 shrink-0" aria-label="Classbar home">
+        <span class="logo-bars" aria-hidden="true"><span></span><span></span><span></span></span>
         <span class="flex flex-col leading-none">
           <span class="text-xl font-extrabold tracking-tight">Classbar</span>
-          <span class="logo-sub mt-0.5">AFTER SCHOOL</span>
+          <span class="logo-sub mt-0.5 whitespace-nowrap">AFTER SCHOOL</span>
         </span>
       </a>
 
-      <div class="flex items-center gap-4 sm:gap-6 text-sm font-medium text-ink-soft dark:text-night-muted">
+      <div class="flex items-center gap-2 sm:gap-6 text-sm font-medium text-ink-soft dark:text-night-muted">
+        <!-- Page links (tablet and desktop). The current page is bold with aria-current="page". -->
         <a href="index.html" class="hidden sm:inline text-ink dark:text-night-text font-semibold" aria-current="page">Home</a>
-        <a href="lessons.html" class="hover:text-ink dark:hover:text-night-text">Lessons</a>
-        <a href="about.html" class="hover:text-ink dark:hover:text-night-text">About</a>
+        <a href="lessons.html" class="hidden sm:inline hover:text-ink dark:hover:text-night-text">Lessons</a>
+        <a href="about.html" class="hidden sm:inline hover:text-ink dark:hover:text-night-text">About</a>
         <!-- @click calls the toggleTheme() method; v-if / v-else swap the icon -->
         <button type="button" class="icon-btn" @click="toggleTheme"
                 :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'">
@@ -73,8 +76,25 @@
         <a href="lessons.html" class="btn btn-primary btn-sm hidden sm:inline-flex">
           Browse lessons <i class="fa-solid fa-arrow-right text-xs"></i>
         </a>
+        <!-- Mobile menu button (phones only): flips data().menuOpen -->
+        <button type="button" class="icon-btn sm:hidden" @click="menuOpen = !menuOpen"
+                :aria-expanded="menuOpen" aria-controls="mobile-menu"
+                :aria-label="menuOpen ? 'Close menu' : 'Open menu'">
+          <i v-if="menuOpen" class="fa-solid fa-xmark"></i>
+          <i v-else class="fa-solid fa-bars"></i>
+        </button>
       </div>
     </nav>
+
+    <!-- Mobile menu panel. v-show because it is opened and closed often. -->
+    <div id="mobile-menu" v-show="menuOpen" class="sm:hidden border-t border-line dark:border-night-line">
+      <nav class="px-4 py-3 flex flex-col gap-1 text-base font-semibold" aria-label="Mobile">
+        <a href="index.html" class="px-3 py-3 rounded-xl bg-white text-ink dark:bg-night-card dark:text-night-text" aria-current="page">Home</a>
+        <a href="lessons.html" class="px-3 py-3 rounded-xl text-ink-soft hover:bg-white hover:text-ink dark:text-night-muted dark:hover:bg-night-card dark:hover:text-night-text">Lessons</a>
+        <a href="about.html" class="px-3 py-3 rounded-xl text-ink-soft hover:bg-white hover:text-ink dark:text-night-muted dark:hover:bg-night-card dark:hover:text-night-text">About</a>
+        <a href="lessons.html" class="btn btn-primary mt-2">Browse lessons <i class="fa-solid fa-arrow-right text-xs"></i></a>
+      </nav>
+    </div>
   </header>
 
   <main>
@@ -152,7 +172,7 @@
         <!-- Floating mini lesson card (the hero's featured card) -->
         <div class="card card-featured absolute p-3 sm:p-4 w-44 sm:w-52" style="right:0; top:4%;">
           <div class="flex items-center gap-2">
-            <span class="w-8 h-8 rounded-lg bg-yellow-light text-yellow-dark dark:bg-night-raised dark:text-yellow flex items-center justify-center">
+            <span class="w-8 h-8 rounded-lg bg-yellow-light text-ink dark:bg-night-raised dark:text-yellow flex items-center justify-center">
               <i class="fa-solid fa-code text-sm"></i>
             </span>
             <div class="leading-tight">
@@ -322,14 +342,15 @@
         <span class="logo-bars" aria-hidden="true"><span></span><span></span><span></span></span>
         <span class="flex flex-col leading-none">
           <span class="text-lg font-extrabold tracking-tight">Classbar</span>
-          <span class="logo-sub mt-0.5">AFTER SCHOOL</span>
+          <span class="logo-sub mt-0.5 whitespace-nowrap">AFTER SCHOOL</span>
         </span>
       </a>
-      <nav class="flex gap-6 text-sm font-medium text-ink-soft dark:text-night-muted">
+      <nav class="flex gap-6 text-sm font-medium text-ink-soft dark:text-night-muted" aria-label="Footer">
         <a href="index.html" class="hover:text-ink dark:hover:text-night-text">Home</a>
         <a href="lessons.html" class="hover:text-ink dark:hover:text-night-text">Lessons</a>
         <a href="about.html" class="hover:text-ink dark:hover:text-night-text">About</a>
       </nav>
+      <!-- year comes from data() in each page's Vue app -->
       <p class="text-sm text-ink-muted dark:text-night-muted">© {{ year }} Classbar</p>
     </div>
   </footer>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Classbar logo: three rounded bars of rising height (red, yellow, green) -->
+  <rect x="3"    y="16" width="7" height="13" rx="3.5" fill="#EF5350"/>
+  <rect x="12.5" y="9"  width="7" height="20" rx="3.5" fill="#F9D74A"/>
+  <rect x="22"   y="2"  width="7" height="27" rx="3.5" fill="#4ADE80"/>
+</svg>

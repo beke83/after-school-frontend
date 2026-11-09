@@ -36,6 +36,12 @@ createApp({
       // Current theme; starts from whatever js/theme.js already applied to <html>
       isDark: Theme.isDark(),
 
+      // Mobile menu (phones only): open/closed, toggled by the menu button in the navbar
+      menuOpen: false,
+
+      // Shown in the footer: © {{ year }} Classbar
+      year: new Date().getFullYear(),
+
       // Copy the dummy array from js/lessons-data.js into reactive data.
       // Each lesson is copied too, so changing `space` later won't touch the original,
       // and spaces already in the saved cart are taken off.
@@ -203,7 +209,7 @@ createApp({
     tileClass(id) {
       return [
         'bg-red-light text-red-dark dark:bg-night-raised dark:text-red',
-        'bg-yellow-light text-yellow-dark dark:bg-night-raised dark:text-yellow',
+        'bg-yellow-light text-ink dark:bg-night-raised dark:text-yellow',
         'bg-green-light text-green-deep dark:bg-night-raised dark:text-green'
       ][(id - 1) % 3];
     },
