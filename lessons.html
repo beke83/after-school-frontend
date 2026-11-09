@@ -105,8 +105,26 @@
     <p class="body-copy text-lg mt-5 max-w-xl">
       Every class has 5 spaces. Pick a subject near you before they fill up.
     </p>
-    <!-- ===================== SORT BAR ===================== -->
-    <div class="card mt-10 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+    <!-- ===================== SEARCH + SORT BAR ===================== -->
+    <div class="card mt-10 p-4 sm:p-5">
+      <!-- Search. v-model updates data().searchText on every key press, which re-runs
+           filteredLessons → sortedLessons, so the cards update as you type (no button). -->
+      <label class="relative block">
+        <span class="sr-only">Search lessons</span>
+        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted dark:text-night-muted pointer-events-none"></i>
+        <input v-model="searchText" type="text" placeholder="Search subject, location, price…"
+               autocomplete="off" @keydown.esc="clearSearch"
+               class="w-full rounded-full border border-line bg-white pl-11 pr-12 py-3 placeholder:text-ink-muted
+                      dark:bg-night-raised dark:border-night-line dark:text-night-text dark:placeholder:text-night-muted">
+        <!-- Clear "×": v-if, so it only exists while there is text -->
+        <button v-if="searchText" type="button" @click="clearSearch" aria-label="Clear search"
+                class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full inline-flex items-center justify-center
+                       text-ink-muted hover:bg-gray-100 hover:text-ink dark:text-night-muted dark:hover:bg-night-card dark:hover:text-night-text">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </label>
+
+    <div class="mt-4 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
       <label class="flex items-center gap-3">
         <span class="text-sm font-semibold text-ink-soft dark:text-night-muted shrink-0">Sort by</span>
         <span class="relative">
@@ -132,17 +150,29 @@
         </button>
       </div>
 
-      <!-- sortSummary is computed, so it updates together with the list -->
-      <p class="sm:ml-auto text-sm text-ink-muted dark:text-night-muted">{{ sortSummary }}</p>
+      <!-- sortSummary is computed, e.g. "3 of 12 lessons · sorted by price, ascending" -->
+      <p class="sm:ml-auto text-sm text-ink-muted dark:text-night-muted" aria-live="polite">{{ sortSummary }}</p>
 
       <!-- Cart count: cart.length goes up by one every time a space is added -->
       <span class="inline-flex items-center gap-2 self-start sm:self-auto rounded-full px-3 py-1.5 text-sm font-bold bg-yellow-light text-ink dark:bg-night-raised dark:text-yellow">
         <i class="fa-solid fa-cart-shopping"></i> {{ cart.length }} in cart
       </span>
     </div>
+    </div>
+
+    <!-- ===================== EMPTY SEARCH RESULT =====================
+         v-if / v-else: either this friendly message OR the grid below. -->
+    <div v-if="sortedLessons.length === 0" class="card mt-6 p-10 text-center">
+      <div class="problem-circle w-16 h-16 mx-auto text-3xl">?</div>
+      <h2 class="section-title text-2xl mt-5">No lessons match “{{ searchText.trim() }}”</h2>
+      <p class="body-copy mt-2">Try a subject like “maths”, a place like “Hendon”, or a price like “90”.</p>
+      <button type="button" class="btn btn-primary btn-sm mt-6" @click="clearSearch">
+        <i class="fa-solid fa-xmark"></i> Clear search
+      </button>
+    </div>
 
     <!-- ===================== LESSON GRID ===================== -->
-    <div class="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+    <div v-else class="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
       <!-- v-for creates one card per lesson in the computed sortedLessons (a sorted copy of
            data().lessons). :key="lesson.id" lets Vue move the existing cards when the order
            changes instead of rebuilding them. The card is an <article>, not a link, because

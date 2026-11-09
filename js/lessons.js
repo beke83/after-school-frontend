@@ -61,6 +61,9 @@ createApp({
       // Summary shown in the confirmation modal after checkout (null = modal closed)
       confirmedOrder: null,
 
+      // Text in the search box (bound with v-model). Empty = show every lesson.
+      searchText: '',
+
       // Sorting state. sortBy holds a lesson field name; both are bound in lessons.html
       sortBy: 'topic',     // 'topic' | 'location' | 'price' | 'space'
       sortOrder: 'asc',    // 'asc' | 'desc'
@@ -85,16 +88,30 @@ createApp({
       return this.lessons.length;
     },
 
-    // A sorted COPY of the lessons, used by the v-for in lessons.html.
-    // Vue tracks which reactive data this function reads (lessons, sortBy, sortOrder).
+    // ----- The computed chain: lessons → filteredLessons → sortedLessons -----
+    // 1. lessons          all 12 lessons (data)
+    // 2. filteredLessons  only the ones that match the search      (reads lessons, searchText)
+    // 3. sortedLessons    those, in the chosen order               (reads filteredLessons, sortBy, sortOrder)
+    // The v-for uses sortedLessons. Search runs BEFORE sorting, so we only sort what's shown.
+    // Each step is cached and re-runs only when something it reads changes: typing re-runs
+    // steps 2 and 3; changing the sort re-runs only step 3.
+
+    // Step 2: the lessons that match searchText (all of them when the box is empty)
+    filteredLessons() {
+      return this.lessons.filter(lesson => this.matchesSearch(lesson));
+    },
+
+    // Step 3: a sorted COPY of filteredLessons, used by the v-for in lessons.html.
+    // Vue tracks which reactive data this function reads (filteredLessons, sortBy, sortOrder).
     // When any of them changes — e.g. the user picks "Price" — Vue re-runs it
     // automatically and the cards re-render. Otherwise the cached result is reused.
     sortedLessons() {
       const field = this.sortBy;
       const direction = this.sortOrder === 'asc' ? 1 : -1;
 
-      // [...this.lessons] copies the array, because .sort() changes the array it is called on
-      return [...this.lessons].sort((a, b) => {
+      // [...] copies the array, because .sort() changes the array it is called on —
+      // and filteredLessons is a cached computed value that must not be changed.
+      return [...this.filteredLessons].sort((a, b) => {
         const x = a[field];
         const y = b[field];
 
@@ -106,11 +123,11 @@ createApp({
       });
     },
 
-    // e.g. "Sorted by price, ascending · 12 lessons"
+    // e.g. "3 of 12 lessons · sorted by price, ascending"
     sortSummary() {
       const label = this.sortOptions.find(o => o.value === this.sortBy).label.toLowerCase();
       const order = this.sortOrder === 'asc' ? 'ascending' : 'descending';
-      return `Sorted by ${label}, ${order} · ${this.lessonCount} lessons`;
+      return `${this.filteredLessons.length} of ${this.lessonCount} lessons · sorted by ${label}, ${order}`;
     },
 
     // The cheapest lesson gets the "featured" card (green border in dark mode)
@@ -195,6 +212,24 @@ createApp({
     spacesLabel(space) {
       if (space === 0) return 'No spaces left';
       return space + (space === 1 ? ' space' : ' spaces') + ' left';
+    },
+
+    // Does one lesson match the search box? Used by the filteredLessons computed property.
+    // FRONT-END ONLY FOR NOW: later this is replaced by a fetch() to the back-end route
+    // GET /search?q=<searchText>, which searches MongoDB and returns the matching lessons.
+    // Keeping the rule in one method means only this part has to change.
+    matchesSearch(lesson) {
+      // Case-insensitive and trimmed; a leading "£" is ignored so "£90" finds price 90
+      const term = this.searchText.trim().toLowerCase().replace(/^£/, '');
+      if (term === '') return true;        // empty box: everything matches
+
+      // Check topic, location, price and space (numbers turned into text first)
+      const fields = [lesson.topic, lesson.location, String(lesson.price), String(lesson.space)];
+      return fields.some(value => value.toLowerCase().includes(term));
+    },
+
+    clearSearch() {
+      this.searchText = '';
     },
 
     // True while the lesson still has a space; used by :disabled on the button
